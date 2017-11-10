@@ -20,7 +20,7 @@ class query_t:
 
 def GET(cur, query):
 	res = query_t()
-	get_query = "SELECT * FROM keys WHERE key = " + "'"+str(query.key)+"'"
+	get_query = "SELECT * FROM keys WHERE key = " + "'"+str(query.key)+"' ORDER BY time_modified DESC"
 	print get_query
 	try:
 		cur.execute(get_query)
@@ -58,15 +58,12 @@ def GET(cur, query):
 		return 1
 '''
 
-def UPSERT(cur, query):
-	upsert_query = ("INSERT INTO keys(key, value, modified_by, time_modified," 
+def INSERT(cur, query):
+	insert_query = ("INSERT INTO keys(key, value, modified_by, time_modified," 
 		+ " temp1, temp2, temp3)" + " VALUES(" + "'"+str(query.key)+"'," + "'"
 		+ query.value+"'," + "'"+query.modified_by+"'," + "'"+str(datetime.datetime.now())+"'," 
-		+ "'"+query.temp1+"'," + "'"+query.temp2+"'," + "'"+query.temp3+"') " 
-		+ "ON CONFLICT ON CONSTRAINT uq_key DO UPDATE SET value = " + "'"+query.value+"', time_modified =" 
-		+ "'"+str(datetime.datetime.now())+"', modified_by =" +"'"+query.modified_by+"'"
-		+ " WHERE keys.key = " + "'"+str(query.key)+"'")
-	print upsert_query
+		+ "'"+query.temp1+"'," + "'"+query.temp2+"'," + "'"+query.temp3+"')")
+	print insert_query
 	try:
 		cur.execute(insert_query)
 	except DatabaseError, exception:

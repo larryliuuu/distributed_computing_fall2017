@@ -60,11 +60,11 @@ class RequestHandler(BaseHTTPRequestHandler):
 		query.value = self.query_components["value"]
 		query.modified_by = self.query_components["host"]
 
-		retval = psql_interface.UPSERT(cur, query)
+		retval = psql_interface.INSERT(cur, query)
 		if retval:
-			print "UPSERT " + query.key + " SUCCESS"
+			print "INSERT " + query.key + " SUCCESS"
 		else:
-			print "UPSERT " + query.key + " ERROR"
+			print "INSERT " + query.key + " ERROR"
 		
 		psql_interface.close_db(conn)
 
@@ -82,5 +82,18 @@ class RequestHandler(BaseHTTPRequestHandler):
 		psql_interface.close_db(conn)
 
 httpd = SocketServer.TCPServer(("", SERVER_PORT), RequestHandler)
+
+'''
+
+memtable only keeps track of recently performed queries (key, value) pairs
+if key is not in memtable, do query directly from psql
+
+create a class that runs this. create an instance variable on the class of a memtable. make a thread that flushes the memtable
+bloom filter
+
+
+'''
+
 httpd.serve_forever()
+
 
