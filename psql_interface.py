@@ -74,6 +74,7 @@ def UPSERT(cur, query):
 		return -1
 	finally:
 		return 1
+
 '''
 def POST(cur, query):
 	update_query = ("UPDATE keys SET value = " + "'"+query.value+"', time_modified =" 

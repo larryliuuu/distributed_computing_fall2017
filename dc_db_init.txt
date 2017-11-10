@@ -9,3 +9,7 @@ create table keys (key varchar(255), value varchar(255), modified_by varchar(255
 
 # unique key values
 alter table keys add constraint uq_key unique(key);
+
+# python packages
+requests
+netifaces

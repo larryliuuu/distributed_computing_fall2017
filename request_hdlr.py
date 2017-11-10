@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 from BaseHTTPServer import BaseHTTPRequestHandler
 import SocketServer
 from urlparse import urlparse
@@ -5,14 +7,14 @@ import psql_interface
 from psql_interface import query_t
 import request_calls
 
-REQUEST_PORT = 5434
+SERVER_PORT = 5434
 APP_NAME = 'distributed_computing/0.1'
 
 '''
-send error codes back to client via http
-send response back ^ put error code in response
-
-user UPSERT for POST queries
+1. create server response:
+	send error codes back to client via http
+	if no error, send response code
+	send data if any back to client
 '''
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -79,6 +81,6 @@ class RequestHandler(BaseHTTPRequestHandler):
 			print "DELETE " + query.key + " ERROR"
 		psql_interface.close_db(conn)
 
-httpd = SocketServer.TCPServer(("", REQUEST_PORT), RequestHandler)
+httpd = SocketServer.TCPServer(("", SERVER_PORT), RequestHandler)
 httpd.serve_forever()
 

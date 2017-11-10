@@ -1,24 +1,25 @@
-import requests
-import socket
+#!/usr/bin/python
 
-IP = '127.0.0.1'
-REQUEST_PORT = '5434'
+import requests
+
+SERVER_IP = '127.0.0.1'
+SERVER_PORT = '5434'
 APP_NAME = 'distributed_computing/0.1'
 
 def READ(key):
 	payload = {'key': key}
 	headers = {'user-agent': APP_NAME}
-	r = requests.get("http://" + IP + ":" + REQUEST_PORT, params=payload, headers=headers)
+	r = requests.get("http://" + SERVER_IP + ":" + SERVER_PORT, params=payload, headers=headers)
 	print r.text
 
-def WRITE(key, value):
-	payload = {'key': key, 'value': value, 'host': socket.gethostbyname(socket.gethostname())}
+def WRITE(key, value, host):
+	payload = {'key': key, 'value': value, 'host': host}
 	headers = {'user-agent': APP_NAME}
-	r = requests.post("http://" + IP + ":" + REQUEST_PORT, params=payload, headers=headers)
+	r = requests.post("http://" + SERVER_IP + ":" + SERVER_PORT, params=payload, headers=headers)
 	print r.text
 
 def DELETE(key):
 	payload = {'key': key}
 	headers = {'user-agent': APP_NAME}
-	r = requests.delete("http://" + IP + ":" + REQUEST_PORT, params=payload, headers=headers)
+	r = requests.delete("http://" + SERVER_IP + ":" + SERVER_PORT, params=payload, headers=headers)
 	print r.text
