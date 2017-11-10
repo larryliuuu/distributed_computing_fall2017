@@ -1,3 +1,3 @@
 import request_calls
 
-request_calls.WRITE("aye", "update_yo")
+request_calls.WRITE("aye", "newval")

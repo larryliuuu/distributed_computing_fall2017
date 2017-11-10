@@ -1,0 +1,11 @@
+# create role
+create role larry with password 'larry';
+
+# add login
+alter role larry with LOGIN;
+
+# create keys table
+create table keys (key varchar(255), value varchar(255), modified_by varchar(255), time_modified timestamp without time zone, temp1 varchar(255), temp2 varchar(255), temp3 varchar(255), pkey_id BIGSERIAL PRIMARY KEY);
+
+# unique key values
+alter table keys add constraint uq_key unique(key);

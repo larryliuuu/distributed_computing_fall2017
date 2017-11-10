@@ -9,10 +9,8 @@ REQUEST_PORT = 5434
 APP_NAME = 'distributed_computing/0.1'
 
 '''
-
 send error codes back to client via http
 send response back ^ put error code in response
-have better print statements for results of query
 
 user UPSERT for POST queries
 '''
@@ -32,30 +30,27 @@ class RequestHandler(BaseHTTPRequestHandler):
 		self.error()
 		return False
 
-
 	def do_GET(self):
 		if not self.verify():
 			return
-		print "in get"
 		cur, conn = psql_interface.open_db()
 		query = query_t()
-
 		query.key = self.query_components["key"]
 		retval, res = psql_interface.GET(cur, query)
 
 		if retval:
-			print res.key
-			print res.value
+			print vars(res)
+			print "GET " + query.key + " SUCCESS"
+			# return OK 200 in response
 		elif retval == 0: 
-			print "key not found"
+			print "key not found - return 404"
 		elif retval == -1:
-			print "exception"
+			print "exception - return 400?"
 		psql_interface.close_db(conn)
 
 	def do_POST(self):
 		if not self.verify():
 			return
-		print "post request identified"
 		cur, conn = psql_interface.open_db()
 		query = query_t()
 
@@ -63,20 +58,26 @@ class RequestHandler(BaseHTTPRequestHandler):
 		query.value = self.query_components["value"]
 		query.modified_by = self.query_components["host"]
 
-		retval = psql_interface.POST(cur, query)
+		retval = psql_interface.UPSERT(cur, query)
 		if retval:
-			print "updated key successfully"
+			print "UPSERT " + query.key + " SUCCESS"
 		else:
-			print "update unsuccessful"
+			print "UPSERT " + query.key + " ERROR"
 		
 		psql_interface.close_db(conn)
 
 	def do_DELETE(self):
 		if not self.verify():
 			return
-		print "in delete"
-		key = self.query_components["key"]
-		print key
+		cur, conn = psql_interface.open_db()
+		query = query_t()
+		query.key = self.query_components["key"]
+		retval = psql_interface.DELETE(cur, query)
+		if retval:
+			print "DELETE " + query.key + " SUCCESS"
+		else:
+			print "DELETE " + query.key + " ERROR"
+		psql_interface.close_db(conn)
 
 httpd = SocketServer.TCPServer(("", REQUEST_PORT), RequestHandler)
 httpd.serve_forever()
