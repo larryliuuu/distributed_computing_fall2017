@@ -31,15 +31,14 @@ def GET(cur, query):
 		rows = cur.fetchall()
 		if not rows:
 			return 0, res
-		for row in rows:
-			res.key = row[0]
-			res.value = row[1]
-			res.modified_by = row[2]
-			res.time_modified = row[3]
-			res.temp1 = row[4]
-			res.temp2 = row[5]
-			res.temp3 = row[6]
-			break
+		row = rows[0]
+		res.key = row[0]
+		res.value = row[1]
+		res.modified_by = row[2]
+		res.time_modified = row[3]
+		res.temp1 = row[4]
+		res.temp2 = row[5]
+		res.temp3 = row[6]
 		return 1, res
 
 '''
@@ -105,12 +104,12 @@ def open_db():
 	#print "successfully connected to database dc!"
 	conn.autocommit = True # avoid executing conn.commit() for every query
 	cur = conn.cursor()
-	print "OPEN DB"
+	print "--------------- OPEN DB ---------------"
 	return cur, conn
 
 def close_db(conn):
 	conn.close()
-	print "CLOSE DB"
+	print "--------------- CLOSE DB ---------------"
 
 # ------------------------------ MAIN ------------------------------ #
 '''

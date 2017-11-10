@@ -81,6 +81,8 @@ class RequestHandler(BaseHTTPRequestHandler):
 			print "DELETE " + query.key + " ERROR"
 		psql_interface.close_db(conn)
 
+
+SocketServer.TCPServer.allow_reuse_address = True
 httpd = SocketServer.TCPServer(("", SERVER_PORT), RequestHandler)
 
 '''
