@@ -35,7 +35,10 @@ def GET(cur, key):
 		return res
 
 def INSERT(cur, key):
-	insert_res = "INSERT INTO keys(key_num, value, modified_by, time_modified, temp1, temp2, temp3)" + "VALUES(" + "'"+str(key.key_num)+"'," + "'"+key.value+"'," + "'"+key.modified_by+"'," + "'"+str(key.time_modified)+"'," + "'"+key.temp1+"'," + "'"+key.temp2+"'," + "'"+key.temp3+"')"
+	insert_res = ("INSERT INTO keys(key_num, value, modified_by, time_modified," 
+		+ " temp1, temp2, temp3)" + "VALUES(" + "'"+str(key.key_num)+"'," + "'"
+		+key.value+"'," + "'"+key.modified_by+"'," + "'"+str(key.time_modified)+"'," 
+		+ "'"+key.temp1+"'," + "'"+key.temp2+"'," + "'"+key.temp3+"')")
 	try:
 		cur.execute(insert_res)
 	except DatabaseError, exception:
