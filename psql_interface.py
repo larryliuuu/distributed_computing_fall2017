@@ -41,22 +41,6 @@ def GET(cur, query):
 		res.temp3 = row[6]
 		return 1, res
 
-'''
-	def INSERT(cur, query):
-	insert_query = ("INSERT INTO keys(key, value, modified_by, time_modified," 
-		+ " temp1, temp2, temp3)" + "VALUES(" + "'"+str(query.key)+"'," + "'"
-		+query.value+"'," + "'"+query.modified_by+"'," + "'"+str(query.time_modified)+"'," 
-		+ "'"+query.temp1+"'," + "'"+query.temp2+"'," + "'"+query.temp3+"')")
-	print insert_query
-	try:
-		cur.execute(insert_query)
-	except DatabaseError, exception:
-		print exception
-		return -1
-	finally:
-		return 1
-'''
-
 def INSERT(cur, query):
 	insert_query = ("INSERT INTO keys(key, value, modified_by, time_modified," 
 		+ " temp1, temp2, temp3)" + " VALUES(" + "'"+str(query.key)+"'," + "'"
@@ -70,21 +54,6 @@ def INSERT(cur, query):
 		return -1
 	finally:
 		return 1
-
-'''
-def POST(cur, query):
-	update_query = ("UPDATE keys SET value = " + "'"+query.value+"', time_modified =" 
-		+ "'"+str(datetime.datetime.now())+"', modified_by =" +"'"+query.modified_by+"'"
-		+ " WHERE key = " + "'"+str(query.key)+"'")
-	print update_query
-	try:
-		cur.execute(update_query)
-	except DatabaseError, exception:
-		print exception
-		return -1
-	finally:
-		return 1
-'''
 
 def DELETE(cur, query):
 	delete_query = "DELETE FROM keys WHERE key = " + "'"+str(query.key)+"'"
@@ -112,12 +81,4 @@ def close_db(conn):
 	print "--------------- CLOSE DB ---------------"
 
 # ------------------------------ MAIN ------------------------------ #
-'''
-cur, conn = open_db()
-query = query_t()
-query.key = "aye"
-query.value = "yo"
-query.time_modified = datetime.datetime.now()
-print INSERT(cur, query)
-close_db(conn)
-'''
+
