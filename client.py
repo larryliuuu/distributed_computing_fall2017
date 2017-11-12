@@ -4,7 +4,7 @@ import netifaces as ni
 
 ip = str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr'])
 
-request_calls.READ("0")
+request_calls.DELETE("0")
 
 '''
 for i in range (0,10):
