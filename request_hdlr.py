@@ -18,41 +18,64 @@ APP_NAME = 'distributed_computing/0.1'
 '''
 
 class RequestHandler(BaseHTTPRequestHandler):
+	server_version = APP_NAME
 	def verify(self):
 		if 'user-agent' in self.headers:
 			if self.headers['user-agent'] == APP_NAME:
 				query = urlparse(self.path).query
+				if 'key' not in query:
+					self.send_response(400) #key not found
+					return False
+
 				self.query_components = dict(qc.split("=") for qc in query.split("&"))
-				'''
-					TODO: error checking for client's input parameters for the query/req
-					ex. return error code, check which error code, if client did not put a value for a key in a POST req
-					if get: has key, if post: has key/value, if delete, has key, etc.
-					'''
+
+				if self.command == 'GET':
+					if 'key' not in self.query_components:
+						self.send_response(400) #key not found
+						return False
+				if self.command == 'POST':
+					if 'key' not in self.query_components:
+						self.send_response(400) #key not found
+						return False
+					if 'value' not in self.query_components:
+						self.send_response(400) #val not found
+						return False
+				if self.command == 'DELETE':
+					if 'key' not in self.query_components:
+						self.send_response(400) #key not found
+						return False
 				return True
-		self.error()
+
+			else:
+				self.send_response(400) #user agent incorrect
+				return False
+
+		self.send_response(400) #user-agent not found
 		return False
 
 	def do_GET(self):
 		if not self.verify():
 			return
+
 		cur, conn = psql_interface.open_db()
 		query = query_t()
 		query.key = self.query_components["key"]
 		retval, res = psql_interface.GET(cur, query)
 
 		if retval:
-			print vars(res)
-			print "GET " + query.key + " SUCCESS"
+			self.send_response(200, query.key + "=" + res)
 			# return OK 200 in response
 		elif retval == 0: 
-			print "key not found - return 404"
+			self.send_response(404) #key not found
 		elif retval == -1:
-			print "exception - return 400?"
+			self.send_response(503) #database error
+
 		psql_interface.close_db(conn)
 
 	def do_POST(self):
 		if not self.verify():
 			return
+
 		cur, conn = psql_interface.open_db()
 		query = query_t()
 
@@ -63,22 +86,29 @@ class RequestHandler(BaseHTTPRequestHandler):
 		retval = psql_interface.INSERT(cur, query)
 		if retval:
 			print "INSERT " + query.key + " SUCCESS"
+			self.send_response(200)
+			#200
 		else:
 			print "INSERT " + query.key + " ERROR"
+			self.send_response(503) #database error
 		
 		psql_interface.close_db(conn)
 
 	def do_DELETE(self):
 		if not self.verify():
 			return
+
 		cur, conn = psql_interface.open_db()
 		query = query_t()
 		query.key = self.query_components["key"]
 		retval = psql_interface.DELETE(cur, query)
 		if retval:
 			print "DELETE " + query.key + " SUCCESS"
+			self.send_response(200) #deleted
 		else:
 			print "DELETE " + query.key + " ERROR"
+			self.send_response(503) #database error
+
 		psql_interface.close_db(conn)
 
 

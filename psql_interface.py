@@ -68,6 +68,11 @@ def DELETE(cur, query):
 		cur.execute(delete_key, delete_param)
 	except DatabaseError, exception:
 		print exception
+		#TODO:
+		#if key not found give another exception
+		
+
+
 		return -1
 	finally:
 		return 1
