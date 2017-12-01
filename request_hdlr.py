@@ -63,7 +63,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 		retval, res = psql_interface.GET(cur, query)
 
 		if retval:
-			self.send_response(200, query.key + "=" + res)
+			self.send_response(200, query.key + "=" + str(res))
 			# return OK 200 in response
 		elif retval == 0: 
 			self.send_response(404) #key not found

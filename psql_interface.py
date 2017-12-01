@@ -5,7 +5,7 @@ import datetime
 
 PSQL_DB = "dc"
 PSQL_USER = "db_user"
-PSQL_PW = "db_pw"
+PSQL_PW = "db_pq"
 PSQL_PORT = 5432
 PSQL_IP = "127.0.0.1"
 
@@ -20,7 +20,6 @@ class query_t:
 
 def GET(cur, query):
 	res = query_t()
-	#get_q = "SELECT * FROM keys WHERE key = " + "'"+str(query.key)+"' ORDER BY time_modified DESC"
 	get_key = "SELECT * FROM keys WHERE key = %(key)s ORDER BY time_modified DESC"
 	get_param = {'key': query.key}
 	print get_key
@@ -44,10 +43,6 @@ def GET(cur, query):
 		return 1, res
 
 def INSERT(cur, query):
-	#insert_query = ("INSERT INTO keys(key, value, modified_by, time_modified," 
-	#	+ " temp1, temp2, temp3)" + " VALUES(" + "'"+str(query.key)+"'," + "'"
-	#	+ query.value+"'," + "'"+query.modified_by+"'," + "'"+str(datetime.datetime.now())+"'," 
-	#	+ "'"+query.temp1+"'," + "'"+query.temp2+"'," + "'"+query.temp3+"')")
 	insert_key = "INSERT INTO keys(key, value, modified_by, time_modified, temp1, temp2, temp3) VALUES (%(key)s, %(value)s, %(modified_by)s, %(time_modified)s, %(temp1)s, %(temp2)s, %(temp3)s)"
 	insert_param = {'key': query.key, 'value': query.value, 'modified_by': query.modified_by, 'time_modified': datetime.datetime.now(), 'temp1': "", 'temp2': "", 'temp3': ""}
 	print insert_key
@@ -60,7 +55,6 @@ def INSERT(cur, query):
 		return 1
 
 def DELETE(cur, query):
-	#delete_query = "DELETE FROM keys WHERE key = " + "'"+str(query.key)+"'"
 	delete_key = "DELETE FROM keys WHERE key = %(key)s"
 	delete_param = {'key': query.key}
 	print delete_key
@@ -70,8 +64,6 @@ def DELETE(cur, query):
 		print exception
 		#TODO:
 		#if key not found give another exception
-		
-
 
 		return -1
 	finally:
@@ -79,8 +71,11 @@ def DELETE(cur, query):
 
 def open_db():
 	#print "connecting to database: dc ..."
-	conn = psycopg2.connect(database = PSQL_DB, user = PSQL_USER, 
+	try: 
+		conn = psycopg2.connect(database = PSQL_DB, user = PSQL_USER, 
 							password = PSQL_PW, host = PSQL_IP, port = PSQL_PORT)
+	except:
+		print "unable to connect"
 	#print "successfully connected to database dc!"
 	conn.autocommit = True # avoid executing conn.commit() for every query
 	cur = conn.cursor()

@@ -14,6 +14,7 @@ UIUC Distributed Computing Research Group - Fall 2017
 7. Force unique keys: `ALTER TABLE keys ADD CONSTRAINT uq_key UNIQUE(key);`
 8. Create role `db_user`: `CREATE ROLE db_user WITH PASSWORD 'db_pw';`
 9. Add role login priviliges: `ALTER ROLE db_user WITH LOGIN;`
+10. Add rest of privileges to role: `alter user db_user with superuser;`
 
 ### python packages
 * requests
