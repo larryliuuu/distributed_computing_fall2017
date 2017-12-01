@@ -4,8 +4,8 @@ import psycopg2
 import datetime
 
 PSQL_DB = "dc"
-PSQL_USER = "larry"
-PSQL_PW = "larry"
+PSQL_USER = "db_user"
+PSQL_PW = "db_pw"
 PSQL_PORT = 5432
 PSQL_IP = "127.0.0.1"
 
