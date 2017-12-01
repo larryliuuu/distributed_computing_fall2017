@@ -5,7 +5,7 @@ import datetime
 
 PSQL_DB = "dc"
 PSQL_USER = "db_user"
-PSQL_PW = "db_pq"
+PSQL_PW = "db_pw"
 PSQL_PORT = 5432
 PSQL_IP = "127.0.0.1"
 
