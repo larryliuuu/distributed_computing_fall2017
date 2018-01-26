@@ -24,10 +24,25 @@ SEQUENTIAL_CONSISTENCY = False
 causal_timestamps = dict()
 causal_timestamps_lock = threading.Lock()
 
+epoch_times = dict()
+
+# psql database neededd when we thread requests out of server handler, (when we keep db connection open)
+
 def init(timestamps, config_file):
 	f = open(config_file)
 	for ip in f.readlines():
-		timestamps[ip.strip()] = (0, time.time())
+		timestamps[ip.strip()] = 0
+		epoch_times[ip.strip()] = time.time() 
+
+def check_timestamps(rcv_ip, rcv_timestamps):
+	if rcv_timestamps[rcv_ip] == 1 + causal_timestamps[rcv_ip]:
+		for ip, seq_num in rcv_timestamps:
+			if ip != rcv_ip:
+				if seq_num > causal_timestamps[ip]:
+					return False
+	else:
+		return False
+
 
 class RequestHandler(BaseHTTPRequestHandler):
 	server_version = APP_NAME
@@ -105,10 +120,9 @@ class RequestHandler(BaseHTTPRequestHandler):
 		if retval:
 			print "INSERT " + query.key + " SUCCESS"
 			self.send_response(200)
-			#200
 		else:
 			print "INSERT " + query.key + " ERROR"
-			self.send_response(503) #database error
+			self.send_response(503) # database error
 		
 		psql_interface.close_db(conn)
 
@@ -122,10 +136,10 @@ class RequestHandler(BaseHTTPRequestHandler):
 		retval = psql_interface.DELETE(cur, query)
 		if retval:
 			print "DELETE " + query.key + " SUCCESS"
-			self.send_response(200) #deleted
+			self.send_response(200)
 		else:
 			print "DELETE " + query.key + " ERROR"
-			self.send_response(503) #database error
+			self.send_response(503) # database error
 
 		psql_interface.close_db(conn)
 
