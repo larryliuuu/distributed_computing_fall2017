@@ -7,6 +7,7 @@ import psql_interface
 from psql_interface import query_t
 import request_calls
 import threading
+import time
 
 import socket
 import netifaces as ni
@@ -15,11 +16,18 @@ import os
 SERVER_PORT = 5434
 APP_NAME = 'distributed_computing/0.1'
 
+config_file = "config"
+
 CAUSAL_CONSISTENCY = True
 SEQUENTIAL_CONSISTENCY = False
 
 causal_timestamps = dict()
 causal_timestamps_lock = threading.Lock()
+
+def init(timestamps, config_file):
+	f = open(config_file)
+	for ip in f.readlines():
+		timestamps[ip.strip()] = (0, time.time())
 
 class RequestHandler(BaseHTTPRequestHandler):
 	server_version = APP_NAME
@@ -161,6 +169,14 @@ def client(data):
 	while True:
 		user_cmd = raw_input("")
 		process_request(user_cmd)
+
+'''-------------------------------------------------- MAIN --------------------------------------------------'''
+
+if CAUSAL_CONSISTENCY:
+	init(causal_timestamps, config_file)
+elif SEQUENTIAL_CONSISTENCY:
+	print "do sequential"
+	#init(sequntial_timestamps, config_file)
 
 t_server = threading.Thread(target=server, kwargs={"data": "server data input param"})
 t_server.start()
