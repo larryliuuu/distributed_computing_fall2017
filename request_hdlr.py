@@ -133,15 +133,15 @@ def process_request(req):
 		ip = str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr'])
 		if (cmd == 'READ'):
 			key = req[cmd_idx+1:]
-			request_calls.READ(key)
+			request_calls.READ(key, causal_timestamps)
 		elif (cmd == 'WRITE'):
 			key_idx = req.find(' ', cmd_idx+1)
 			key = req[cmd_idx+1:key_idx]
 			value = req[key_idx+1]
-			request_calls.WRITE(key, value, ip)
+			request_calls.WRITE(key, value, ip, causal_timestamps)
 		elif (cmd == 'DELETE'):
 			key = req[cmd_idx+1:]
-			request_calls.DELETE(key)
+			request_calls.DELETE(key, causal_timestamps)
 		elif (req == 'quit'):
 			os._exit(1)
 		elif (req == 'help'):
