@@ -142,6 +142,8 @@ def process_request(req):
 		elif (cmd == 'DELETE'):
 			key = req[cmd_idx+1:]
 			request_calls.DELETE(key, causal_timestamps)
+		elif (cmd == 'vt'):
+			print causal_timestamps
 		elif (req == 'quit'):
 			os._exit(1)
 		elif (req == 'help'):
