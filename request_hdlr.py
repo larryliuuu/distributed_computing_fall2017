@@ -26,7 +26,15 @@ causal_timestamps_lock = threading.Lock()
 
 epoch_times = dict()
 
+buf = []
+
 # psql database neededd when we thread requests out of server handler, (when we keep db connection open)
+
+
+# have a for loop with 1) delay 2) check_timestamps for some amount of time
+# if time passes and checktimestamps always fails, discard msg, print error msg etc.
+# this way, we simply buffer within the thread (= by the server class instance) instead of passing buffering bw threads
+# this doesnt work ^^^ :(
 
 def init(timestamps, config_file):
 	f = open(config_file)
@@ -43,6 +51,21 @@ def check_timestamps(rcv_ip, rcv_timestamps):
 	else:
 		return False
 
+def buffer_msg(timestamps, rcv_ip, op, key, value):
+	buf.append((timestamps, rcv_ip, op, key, value))
+
+def check_buffer():
+	for (timestamps, rcv_ip, op, key, value) in buf:
+		if check_timestamps(rcv_ip, timestamps):
+			if op == 'GET':
+				exec_GET(key)
+			elif op == 'POST':
+				exec_POST(key, value)
+			elif op == 'DELETE':
+				exec_DELETE(key)
+			else:
+				print "error: no operation"
+				exit()
 
 class RequestHandler(BaseHTTPRequestHandler):
 	server_version = APP_NAME
@@ -90,6 +113,14 @@ class RequestHandler(BaseHTTPRequestHandler):
 	def do_GET(self):
 		if not self.verify():
 			return
+		if not check_timestamps:
+			while True:
+				time.sleep(5)
+				if check_timestamps:
+					break
+
+		#if not check_timestamps:
+		#	buffer_msg(self.headers['vt'], self.client_address[0], 'GET', self.query_components['key'], '')
 
 		cur, conn = psql_interface.open_db()
 		query = query_t()
@@ -108,6 +139,11 @@ class RequestHandler(BaseHTTPRequestHandler):
 	def do_POST(self):
 		if not self.verify():
 			return
+		if not check_timestamps:
+			while True:
+				time.sleep(5)
+				if check_timestamps:
+					break
 
 		cur, conn = psql_interface.open_db()
 		query = query_t()
@@ -129,10 +165,16 @@ class RequestHandler(BaseHTTPRequestHandler):
 	def do_DELETE(self):
 		if not self.verify():
 			return
+		if not check_timestamps:
+			while True:
+				time.sleep(5)
+				if check_timestamps:
+					break
 
 		cur, conn = psql_interface.open_db()
 		query = query_t()
 		query.key = self.query_components["key"]
+
 		retval = psql_interface.DELETE(cur, query)
 		if retval:
 			print "DELETE " + query.key + " SUCCESS"
