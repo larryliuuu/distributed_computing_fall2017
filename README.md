@@ -5,7 +5,7 @@ UIUC Distributed Computing Research Group - Fall 2017
 ### psql
 1. Install PostgreSQL: 
 * https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
-* Brew Install PostgreSQL: `brew update && install postgresql`
+* Brew Install PostgreSQL: `brew update && brew install postgresql`
 2. Login psql: `psql`
 3. Create DB `dc`: `create database dc`
 4. Quit psql: `\q`
