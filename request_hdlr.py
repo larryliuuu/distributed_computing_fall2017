@@ -12,6 +12,7 @@ import time
 import socket
 import netifaces as ni
 import os
+import json
 
 SERVER_PORT = 5434
 APP_NAME = 'distributed_computing/0.1'
@@ -103,20 +104,27 @@ class RequestHandler(BaseHTTPRequestHandler):
 					if 'key' not in self.query_components:
 						self.send_response(400) # key not found
 						return False
+				if 'vt' in self.headers:
+					self.rcv_vt = json.loads(self.headers['vt'])
+					self.rcv_ip = self.client_address[0]
+				else:
+					self.send_response(401) # vector timestamp not included
+					return False
 				return True
 			else:
 				self.send_response(400) # user agent incorrect
 				return False
+
 		self.send_response(400) # user-agent not found
 		return False
 
 	def do_GET(self):
 		if not self.verify():
 			return
-		if not check_timestamps:
+		if not check_timestamps(self.rcv_ip, self.rcv_vt):
 			while True:
 				time.sleep(5)
-				if check_timestamps:
+				if check_timestamps(self.rcv_ip, self.rcv_vt):
 					break
 
 		#if not check_timestamps:
@@ -139,10 +147,11 @@ class RequestHandler(BaseHTTPRequestHandler):
 	def do_POST(self):
 		if not self.verify():
 			return
-		if not check_timestamps:
+		if not check_timestamps(self.rcv_ip, self.rcv_vt):
 			while True:
+				print "here"
 				time.sleep(5)
-				if check_timestamps:
+				if check_timestamps(self.rcv_ip, self.rcv_vt):
 					break
 
 		cur, conn = psql_interface.open_db()
@@ -165,10 +174,10 @@ class RequestHandler(BaseHTTPRequestHandler):
 	def do_DELETE(self):
 		if not self.verify():
 			return
-		if not check_timestamps:
+		if not check_timestamps(self.rcv_ip, self.rcv_vt):
 			while True:
 				time.sleep(5)
-				if check_timestamps:
+				if check_timestamps(self.rcv_ip, self.rcv_vt):
 					break
 
 		cur, conn = psql_interface.open_db()
@@ -188,6 +197,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 def server(data):
 	SocketServer.TCPServer.allow_reuse_address = True
 	httpd = SocketServer.TCPServer(("", SERVER_PORT), RequestHandler)
+	httpd.Daemon = True
 	httpd.serve_forever()
 
 def process_request(req):
@@ -197,15 +207,15 @@ def process_request(req):
 		ip = str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr'])
 		if (cmd == 'READ'):
 			key = req[cmd_idx+1:]
-			request_calls.READ(key, causal_timestamps)
+			request_calls.READ(key, json.dumps(causal_timestamps))
 		elif (cmd == 'WRITE'):
 			key_idx = req.find(' ', cmd_idx+1)
 			key = req[cmd_idx+1:key_idx]
-			value = req[key_idx+1]
-			request_calls.WRITE(key, value, ip, causal_timestamps)
+			value = req[key_idx+1:]
+			request_calls.WRITE(key, value, ip, json.dumps(causal_timestamps))
 		elif (cmd == 'DELETE'):
 			key = req[cmd_idx+1:]
-			request_calls.DELETE(key, causal_timestamps)
+			request_calls.DELETE(key, json.dumps(causal_timestamps))
 		elif (cmd == 'vt'):
 			print causal_timestamps
 		elif (req == 'quit'):
@@ -235,9 +245,11 @@ elif SEQUENTIAL_CONSISTENCY:
 	#init(sequntial_timestamps, config_file)
 
 t_server = threading.Thread(target=server, kwargs={"data": "server data input param"})
+t_server.Daemon = True
 t_server.start()
 
 t_client = threading.Thread(target=client, kwargs={"data": "client data input param"})
+t_client.Daemon = True
 t_client.start()
 
 
