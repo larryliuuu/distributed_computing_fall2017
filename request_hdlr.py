@@ -61,6 +61,8 @@ def check_timestamps(rcv_ip, rcv_timestamps):
 			if ip != rcv_ip:
 				if seq_num > causal_timestamps[ip]:
 					return False
+		with causal_timestamps_lock:
+			rcv_timestamps[rcv_ip] += 1
 		return True
 	else:
 		return False
@@ -256,6 +258,8 @@ def client(data):
 		process_request(user_cmd)
 
 '''-------------------------------------------------- MAIN --------------------------------------------------'''
+print "--------------------------------------------------"
+print " Welcome!"
 
 if CAUSAL_CONSISTENCY:
 	init(causal_timestamps, config_file)
