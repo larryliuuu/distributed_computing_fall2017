@@ -44,10 +44,20 @@ def init(timestamps, config_file):
 		epoch_times[ip.strip()] = time.time() 
 
 def check_timestamps(rcv_ip, rcv_timestamps):
-	if rcv_ip == LOCALHOST:
+	if rcv_ip == LOCALHOST: # recieved messaged from self
 		rcv_ip = str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr'])
-	if rcv_timestamps[rcv_ip] == 1 + causal_timestamps[rcv_ip]:
-		for ip, seq_num in rcv_timestamps:
+		if rcv_timestamps[rcv_ip] == causal_timestamps[rcv_ip]:
+			for ip, seq_num in rcv_timestamps.iteritems():
+				if ip != rcv_ip:
+					if seq_num > causal_timestamps[ip]:
+						return False
+			return True
+		else:
+			return False
+
+	# received message from forgeign host
+	if rcv_timestamps[rcv_ip] == 1 + causal_timestamps[rcv_ip]: 
+		for ip, seq_num in rcv_timestamps.iteritems():
 			if ip != rcv_ip:
 				if seq_num > causal_timestamps[ip]:
 					return False
