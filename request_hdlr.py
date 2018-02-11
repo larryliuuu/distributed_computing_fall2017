@@ -62,7 +62,7 @@ def check_timestamps(rcv_ip, rcv_timestamps):
 				if seq_num > causal_timestamps[ip]:
 					return False
 		with causal_timestamps_lock:
-			rcv_timestamps[rcv_ip] += 1
+			causal_timestamps[rcv_ip] += 1
 		return True
 	else:
 		return False
