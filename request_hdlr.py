@@ -42,8 +42,16 @@ def init(timestamps, config_file):
 	for ip in f.readlines():
 		timestamps[ip.strip()] = 0
 		epoch_times[ip.strip()] = time.time() 
+		#if ip.strip() == str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr']):
+		#	timestamps[ip.strip()] = 1
 
 def check_timestamps(rcv_ip, rcv_timestamps):
+	global causal_timestamps
+	
+	print rcv_timestamps
+	print causal_timestamps
+	print ">>>>>>"
+
 	if rcv_ip == LOCALHOST: # recieved messaged from self
 		rcv_ip = str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr'])
 		if rcv_timestamps[rcv_ip] == causal_timestamps[rcv_ip]:
@@ -63,6 +71,7 @@ def check_timestamps(rcv_ip, rcv_timestamps):
 					return False
 		with causal_timestamps_lock:
 			causal_timestamps[rcv_ip] += 1
+		print causal_timestamps
 		return True
 	else:
 		return False
@@ -134,13 +143,11 @@ class RequestHandler(BaseHTTPRequestHandler):
 		return False
 
 	def do_GET(self):
+		print 'reading'
 		if not self.verify():
 			return
-		if not check_timestamps(self.rcv_ip, self.rcv_vt):
-			while True:
-				time.sleep(5)
-				if check_timestamps(self.rcv_ip, self.rcv_vt):
-					break
+		while not check_timestamps(self.rcv_ip, self.rcv_vt):
+			time.sleep(.5)
 
 		#if not check_timestamps:
 		#	buffer_msg(self.headers['vt'], self.client_address[0], 'GET', self.query_components['key'], '')
@@ -160,14 +167,11 @@ class RequestHandler(BaseHTTPRequestHandler):
 		psql_interface.close_db(conn)
 
 	def do_POST(self):
+		print "writing"
 		if not self.verify():
 			return
-		if not check_timestamps(self.rcv_ip, self.rcv_vt):
-			while True:
-				print self.rcv_vt
-				time.sleep(5)
-				if check_timestamps(self.rcv_ip, self.rcv_vt):
-					break
+		while not check_timestamps(self.rcv_ip, self.rcv_vt):
+			time.sleep(.5)
 
 		cur, conn = psql_interface.open_db()
 		query = query_t()
@@ -189,11 +193,8 @@ class RequestHandler(BaseHTTPRequestHandler):
 	def do_DELETE(self):
 		if not self.verify():
 			return
-		if not check_timestamps(self.rcv_ip, self.rcv_vt):
-			while True:
-				time.sleep(5)
-				if check_timestamps(self.rcv_ip, self.rcv_vt):
-					break
+		while not check_timestamps(self.rcv_ip, self.rcv_vt):
+			pass
 
 		cur, conn = psql_interface.open_db()
 		query = query_t()
@@ -210,46 +211,47 @@ class RequestHandler(BaseHTTPRequestHandler):
 		psql_interface.close_db(conn)
 
 def server(data):
-	SocketServer.TCPServer.allow_reuse_address = True
-	httpd = SocketServer.TCPServer(("", SERVER_PORT), RequestHandler)
+	SocketServer.ThreadingTCPServer.allow_reuse_address = True
+	httpd = SocketServer.ThreadingTCPServer(("", SERVER_PORT), RequestHandler)
 	httpd.daemon = True
 	httpd.serve_forever()
 
 def process_request(req):
-		cmd_idx = req.find(' ')
-		cmd = req[0:cmd_idx]
+	global causal_timestamps
+	cmd_idx = req.find(' ')
+	cmd = req[0:cmd_idx]
 
-		ip = str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr'])
-		if (cmd == 'READ'):
-			key = req[cmd_idx+1:]
-			with causal_timestamps_lock:
-				causal_timestamps[ip] += 1
-			request_calls.READ(key, json.dumps(causal_timestamps))
-		elif (cmd == 'WRITE'):
-			key_idx = req.find(' ', cmd_idx+1)
-			key = req[cmd_idx+1:key_idx]
-			value = req[key_idx+1:]
-			with causal_timestamps_lock:
-				causal_timestamps[ip] += 1
-			request_calls.WRITE(key, value, ip, json.dumps(causal_timestamps))
-		elif (cmd == 'DELETE'):
-			key = req[cmd_idx+1:]
-			with causal_timestamps_lock:
-				causal_timestamps[ip] += 1
-			request_calls.DELETE(key, json.dumps(causal_timestamps))
-		elif (req == 'vt'):
-			print causal_timestamps
-		elif (req == 'quit'):
-			os._exit(1)
-		elif (req == 'help'):
-			print "--------------------------------------------------"
-			print "Distributed Key Value Storage System Usage: "
-			print "    READ [key]"
-			print "    WRITE [key] [value]"
-			print "    DELETE [key]"
-			print "--------------------------------------------------"
-		else:
-			print "Invalid Command. Type 'help' for more information or 'quit' to exit program."
+	ip = str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr'])
+	if (cmd == 'READ'):
+		key = req[cmd_idx+1:]
+		with causal_timestamps_lock:
+			causal_timestamps[ip] += 1
+		request_calls.READ(key, json.dumps(causal_timestamps))
+	elif (cmd == 'WRITE'):
+		key_idx = req.find(' ', cmd_idx+1)
+		key = req[cmd_idx+1:key_idx]
+		value = req[key_idx+1:]
+		with causal_timestamps_lock:
+			causal_timestamps[ip] += 1
+		request_calls.WRITE(key, value, ip, json.dumps(causal_timestamps))
+	elif (cmd == 'DELETE'):
+		key = req[cmd_idx+1:]
+		with causal_timestamps_lock:
+			causal_timestamps[ip] += 1
+		request_calls.DELETE(key, json.dumps(causal_timestamps))
+	elif (req == 'vt'):
+		print causal_timestamps
+	elif (req == 'quit'):
+		os._exit(1)
+	elif (req == 'help'):
+		print "--------------------------------------------------"
+		print "Distributed Key Value Storage System Usage: "
+		print "    READ [key]"
+		print "    WRITE [key] [value]"
+		print "    DELETE [key]"
+		print "--------------------------------------------------"
+	else:
+		print "Invalid Command. Type 'help' for more information or 'quit' to exit program."
 
 def client(data):
 	global quit_flag
