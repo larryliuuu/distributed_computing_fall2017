@@ -16,7 +16,7 @@ import json
 
 SERVER_PORT = 5434
 APP_NAME = 'distributed_computing/0.1'
-
+LOCALHOST = '127.0.0.1'
 config_file = "config"
 
 CAUSAL_CONSISTENCY = True
@@ -44,11 +44,14 @@ def init(timestamps, config_file):
 		epoch_times[ip.strip()] = time.time() 
 
 def check_timestamps(rcv_ip, rcv_timestamps):
+	if rcv_ip == LOCALHOST:
+		rcv_ip = str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr'])
 	if rcv_timestamps[rcv_ip] == 1 + causal_timestamps[rcv_ip]:
 		for ip, seq_num in rcv_timestamps:
 			if ip != rcv_ip:
 				if seq_num > causal_timestamps[ip]:
 					return False
+		return True
 	else:
 		return False
 
@@ -149,7 +152,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 			return
 		if not check_timestamps(self.rcv_ip, self.rcv_vt):
 			while True:
-				print "here"
+				print self.rcv_vt
 				time.sleep(5)
 				if check_timestamps(self.rcv_ip, self.rcv_vt):
 					break
@@ -197,7 +200,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 def server(data):
 	SocketServer.TCPServer.allow_reuse_address = True
 	httpd = SocketServer.TCPServer(("", SERVER_PORT), RequestHandler)
-	httpd.Daemon = True
+	httpd.daemon = True
 	httpd.serve_forever()
 
 def process_request(req):
@@ -207,16 +210,22 @@ def process_request(req):
 		ip = str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr'])
 		if (cmd == 'READ'):
 			key = req[cmd_idx+1:]
+			with causal_timestamps_lock:
+				causal_timestamps[ip] += 1
 			request_calls.READ(key, json.dumps(causal_timestamps))
 		elif (cmd == 'WRITE'):
 			key_idx = req.find(' ', cmd_idx+1)
 			key = req[cmd_idx+1:key_idx]
 			value = req[key_idx+1:]
+			with causal_timestamps_lock:
+				causal_timestamps[ip] += 1
 			request_calls.WRITE(key, value, ip, json.dumps(causal_timestamps))
 		elif (cmd == 'DELETE'):
 			key = req[cmd_idx+1:]
+			with causal_timestamps_lock:
+				causal_timestamps[ip] += 1
 			request_calls.DELETE(key, json.dumps(causal_timestamps))
-		elif (cmd == 'vt'):
+		elif (req == 'vt'):
 			print causal_timestamps
 		elif (req == 'quit'):
 			os._exit(1)
@@ -245,11 +254,10 @@ elif SEQUENTIAL_CONSISTENCY:
 	#init(sequntial_timestamps, config_file)
 
 t_server = threading.Thread(target=server, kwargs={"data": "server data input param"})
-t_server.Daemon = True
+t_server.daemon = True
 t_server.start()
 
 t_client = threading.Thread(target=client, kwargs={"data": "client data input param"})
-t_client.Daemon = True
 t_client.start()
 
 
