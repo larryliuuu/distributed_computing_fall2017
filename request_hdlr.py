@@ -48,7 +48,8 @@ def init(timestamps, config_file):
 def check_timestamps(rcv_ip, rcv_timestamps):
 	global causal_timestamps
 
-	print "buffer msg from: " + rcv_ip + " " + causal_timestamps
+	print "buffer msg from: " + rcv_ip + " ",
+	print causal_timestamps
 
 	if rcv_ip == LOCALHOST: # recieved messaged from self
 		rcv_ip = str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr'])
