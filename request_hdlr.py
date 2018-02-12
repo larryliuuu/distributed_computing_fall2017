@@ -48,8 +48,7 @@ def init(timestamps, config_file):
 def check_timestamps(rcv_ip, rcv_timestamps):
 	global causal_timestamps
 
-	print "buffer msg from: " + rcv_ip
-	print causal_timestamps
+	print "buffer msg from: " + rcv_ip + " " + causal_timestamps
 
 	if rcv_ip == LOCALHOST: # recieved messaged from self
 		rcv_ip = str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr'])
@@ -175,18 +174,22 @@ class RequestHandler(BaseHTTPRequestHandler):
 			time.sleep(.5)
 
 		cur, conn = psql_interface.open_db()
-		query = query_t()
 
+		query = query_t()
 		query.key = self.query_components["key"]
 		query.value = self.query_components["value"]
 		query.modified_by = self.query_components["host"]
 
-		retval = psql_interface.INSERT(cur, query)
+		key_exists, res = psql_interface.GET(cur, query)
+		if key_exists:
+			retval = psql_interface.UPDATE(cur, query)
+		else:
+			retval = psql_interface.INSERT(cur, query)
 		if retval:
-			print "INSERT " + query.key + " " + query.value + " SUCCESS"
+			print "WRITE " + query.key + " " + query.value + " SUCCESS"
 			self.send_response(200)
 		else:
-			print "INSERT " + query.key + " " + query.value + " ERROR"
+			print "WRITE " + query.key + " " + query.value + " ERROR"
 			self.send_response(503) # database error
 		
 		psql_interface.close_db(conn)

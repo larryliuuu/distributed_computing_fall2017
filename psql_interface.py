@@ -52,6 +52,17 @@ def INSERT(cur, query):
 	finally:
 		return 1
 
+def UPDATE(cur, query):
+	insert_key = "UPDATE keys SET value = %(value)s, modified_by = %(modified_by)s,  time_modified = %(time_modified)s, temp1 =  %(temp1)s, temp2 = %(temp2)s, temp3 = %(temp3)s WHERE key = %(key)s"
+	insert_param = {'key': query.key, 'value': query.value, 'modified_by': query.modified_by, 'time_modified': datetime.datetime.now(), 'temp1': "", 'temp2': "", 'temp3': ""}
+	try:
+		cur.execute(insert_key, insert_param)
+	except DatabaseError, exception:
+		print exception
+		return -1
+	finally:
+		return 1
+
 def DELETE(cur, query):
 	delete_key = "DELETE FROM keys WHERE key = %(key)s"
 	delete_param = {'key': query.key}
