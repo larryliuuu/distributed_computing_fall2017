@@ -48,7 +48,7 @@ def init(timestamps, config_file):
 def check_timestamps(rcv_ip, rcv_timestamps):
 	global causal_timestamps
 
-	print "buffering msg from: " + rcv_ip
+	print "buffer msg from: " + rcv_ip
 	print causal_timestamps
 
 	if rcv_ip == LOCALHOST: # recieved messaged from self
@@ -70,7 +70,6 @@ def check_timestamps(rcv_ip, rcv_timestamps):
 					return False
 		with causal_timestamps_lock:
 			causal_timestamps[rcv_ip] += 1
-		print causal_timestamps
 		return True
 	else:
 		return False
@@ -156,10 +155,13 @@ class RequestHandler(BaseHTTPRequestHandler):
 		retval, res = psql_interface.GET(cur, query)
 
 		if retval:
+			print "GET " + query.key + " SUCCESS"
 			self.send_response(200, query.key + "=" + str(res))
 		elif retval == 0: 
+			print "GET " + query.key + " NOT FOUND"
 			self.send_response(404) # key not found
 		elif retval == -1:
+			print "GET " + query.key + " ERROR"
 			self.send_response(503) # database error
 
 		psql_interface.close_db(conn)
@@ -179,10 +181,10 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 		retval = psql_interface.INSERT(cur, query)
 		if retval:
-			print "INSERT " + query.key + " SUCCESS"
+			print "INSERT " + query.key + " " + query.value + " SUCCESS"
 			self.send_response(200)
 		else:
-			print "INSERT " + query.key + " ERROR"
+			print "INSERT " + query.key + " " + query.value + " ERROR"
 			self.send_response(503) # database error
 		
 		psql_interface.close_db(conn)
@@ -258,7 +260,11 @@ def client(data):
 
 '''-------------------------------------------------- MAIN --------------------------------------------------'''
 print "--------------------------------------------------"
-print " Welcome!"
+print "Distributed Key Value Storage System Usage: "
+print "    READ [key]"
+print "    WRITE [key] [value]"
+print "    DELETE [key]"
+print "--------------------------------------------------"
 
 if CAUSAL_CONSISTENCY:
 	init(causal_timestamps, config_file)

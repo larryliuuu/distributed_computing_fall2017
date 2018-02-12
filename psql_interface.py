@@ -24,7 +24,6 @@ def GET(cur, query):
 	get_param = {'key': query.key}
 	try:
 		cur.execute(get_key, get_param)
-		print "GOT " + query.key
 	except DatabaseError, exception:
 		print exception
 		return -1, res
@@ -47,7 +46,6 @@ def INSERT(cur, query):
 	insert_param = {'key': query.key, 'value': query.value, 'modified_by': query.modified_by, 'time_modified': datetime.datetime.now(), 'temp1': "", 'temp2': "", 'temp3': ""}
 	try:
 		cur.execute(insert_key, insert_param)
-		print "WROTE " + query.key + " " + query.value
 	except DatabaseError, exception:
 		print exception
 		return -1
@@ -59,7 +57,6 @@ def DELETE(cur, query):
 	delete_param = {'key': query.key}
 	try:
 		cur.execute(delete_key, delete_param)
-		print "DELETED " + query.key
 	except DatabaseError, exception:
 		print exception
 		return -1
