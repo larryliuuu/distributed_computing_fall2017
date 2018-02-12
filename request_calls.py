@@ -10,7 +10,7 @@ def READ(key, vt):
 	payload = {'key': key}
 	headers = {'user-agent': APP_NAME, 'vt': vt}
 	r = requests.get("http://" + SERVER_IP + ":" + SERVER_PORT, params=payload, headers=headers)
-	print r.status_code
+	print r.text
 
 def WRITE(key, value, host, vt):
 	payload = {'key': key, 'value': value, 'host': host}

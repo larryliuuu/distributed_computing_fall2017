@@ -156,7 +156,9 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 		if retval:
 			print "GET " + query.key + " SUCCESS"
-			self.send_response(200, query.key + "=" + str(res))
+			self.send_response(200)
+			self.end_headers()
+			self.wfile.write(query.key + ":" + str(res.value)) # return more informtion here
 		elif retval == 0: 
 			print "GET " + query.key + " NOT FOUND"
 			self.send_response(404) # key not found
