@@ -22,9 +22,9 @@ def GET(cur, query):
 	res = query_t()
 	get_key = "SELECT * FROM keys WHERE key = %(key)s ORDER BY time_modified DESC"
 	get_param = {'key': query.key}
-	print get_key
 	try:
 		cur.execute(get_key, get_param)
+		print "GOT " + query.key
 	except DatabaseError, exception:
 		print exception
 		return -1, res
@@ -45,9 +45,9 @@ def GET(cur, query):
 def INSERT(cur, query):
 	insert_key = "INSERT INTO keys(key, value, modified_by, time_modified, temp1, temp2, temp3) VALUES (%(key)s, %(value)s, %(modified_by)s, %(time_modified)s, %(temp1)s, %(temp2)s, %(temp3)s)"
 	insert_param = {'key': query.key, 'value': query.value, 'modified_by': query.modified_by, 'time_modified': datetime.datetime.now(), 'temp1': "", 'temp2': "", 'temp3': ""}
-	print insert_key
 	try:
 		cur.execute(insert_key, insert_param)
+		print "WROTE " + query.key + " " + query.value
 	except DatabaseError, exception:
 		print exception
 		return -1
@@ -57,9 +57,9 @@ def INSERT(cur, query):
 def DELETE(cur, query):
 	delete_key = "DELETE FROM keys WHERE key = %(key)s"
 	delete_param = {'key': query.key}
-	print delete_key
 	try:
 		cur.execute(delete_key, delete_param)
+		print "DELETED " + query.key
 	except DatabaseError, exception:
 		print exception
 		return -1
@@ -76,12 +76,12 @@ def open_db():
 	#print "successfully connected to database dc!"
 	conn.autocommit = True # avoid executing conn.commit() for every query
 	cur = conn.cursor()
-	print "--------------- OPEN DB ---------------"
+	#print "--------------- OPEN DB ---------------"
 	return cur, conn
 
 def close_db(conn):
 	conn.close()
-	print "--------------- CLOSE DB ---------------"
+	#print "--------------- CLOSE DB ---------------"
 
 # ------------------------------ MAIN ------------------------------ #
 

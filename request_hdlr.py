@@ -43,14 +43,13 @@ def init(timestamps, config_file):
 		timestamps[ip.strip()] = 0
 		epoch_times[ip.strip()] = time.time() 
 		#if ip.strip() == str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr']):
-		#	timestamps[ip.strip()] = 1
+		#	timestamps[ip.strip()] = 6
 
 def check_timestamps(rcv_ip, rcv_timestamps):
 	global causal_timestamps
-	
-	print rcv_timestamps
+
+	print "buffering msg from: " + rcv_ip
 	print causal_timestamps
-	print ">>>>>>"
 
 	if rcv_ip == LOCALHOST: # recieved messaged from self
 		rcv_ip = str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr'])
@@ -143,7 +142,6 @@ class RequestHandler(BaseHTTPRequestHandler):
 		return False
 
 	def do_GET(self):
-		print 'reading'
 		if not self.verify():
 			return
 		while not check_timestamps(self.rcv_ip, self.rcv_vt):
@@ -167,7 +165,6 @@ class RequestHandler(BaseHTTPRequestHandler):
 		psql_interface.close_db(conn)
 
 	def do_POST(self):
-		print "writing"
 		if not self.verify():
 			return
 		while not check_timestamps(self.rcv_ip, self.rcv_vt):

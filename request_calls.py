@@ -2,7 +2,7 @@
 
 import requests
 
-SERVER_IP = '127.0.0.1'
+SERVER_IP = '192.168.0.125'
 SERVER_PORT = '5434'
 APP_NAME = 'distributed_computing/0.1'
 
