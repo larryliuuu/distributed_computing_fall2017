@@ -48,9 +48,6 @@ def init(timestamps, config_file):
 def check_timestamps(rcv_ip, rcv_timestamps):
 	global causal_timestamps
 
-	print "buffer msg from: " + rcv_ip + " ",
-	print causal_timestamps
-
 	if rcv_ip == LOCALHOST: # recieved messaged from self
 		rcv_ip = str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr'])
 		if rcv_timestamps[rcv_ip] == causal_timestamps[rcv_ip]:
@@ -92,6 +89,8 @@ def check_buffer():
 
 class RequestHandler(BaseHTTPRequestHandler):
 	server_version = APP_NAME
+	def log_message(self, format, *args):
+		return
 	def verify(self):
 		if 'user-agent' in self.headers:
 			if self.headers['user-agent'] == APP_NAME:
@@ -143,7 +142,12 @@ class RequestHandler(BaseHTTPRequestHandler):
 	def do_GET(self):
 		if not self.verify():
 			return
+		log_flag = True
 		while not check_timestamps(self.rcv_ip, self.rcv_vt):
+			if log_flag:
+				print "buffer msg from: " + self.rcv_ip + " ",
+				print causal_timestamps
+				log_flag = False
 			time.sleep(.5)
 
 		#if not check_timestamps:
@@ -171,7 +175,12 @@ class RequestHandler(BaseHTTPRequestHandler):
 	def do_POST(self):
 		if not self.verify():
 			return
+		log_flag = True
 		while not check_timestamps(self.rcv_ip, self.rcv_vt):
+			if log_flag:
+				print "buffer msg from: " + self.rcv_ip + " ",
+				print causal_timestamps
+				log_flag = False
 			time.sleep(.5)
 
 		cur, conn = psql_interface.open_db()
@@ -198,8 +207,13 @@ class RequestHandler(BaseHTTPRequestHandler):
 	def do_DELETE(self):
 		if not self.verify():
 			return
+		log_flag = True
 		while not check_timestamps(self.rcv_ip, self.rcv_vt):
-			pass
+			if log_flag:
+				print "buffer msg from: " + self.rcv_ip + " ",
+				print causal_timestamps
+				log_flag = False
+			time.sleep(.5)
 
 		cur, conn = psql_interface.open_db()
 		query = query_t()
