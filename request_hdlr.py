@@ -14,7 +14,7 @@ import netifaces as ni
 import os
 import json
 
-SERVER_IP = '192.168.0.132'
+SERVER_IP = '192.168.0.114'
 SERVER_PORT = 5434
 APP_NAME = 'distributed_computing/0.1'
 LOCALHOST = '127.0.0.1'
@@ -239,7 +239,7 @@ def server(data):
 def process_request(req):
 	global causal_timestamps
 	cmd_idx = req.find(' ')
-	cmd = req[0:cmd_idx]
+	cmd = req[0:cmd_idx].upper()
 
 	ip = str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr'])
 	if (cmd == 'READ'):
