@@ -2,24 +2,23 @@
 
 import requests
 
-SERVER_IP = '192.168.0.125'
 SERVER_PORT = '5434'
 APP_NAME = 'distributed_computing/0.1'
 
-def READ(key, vt):
+def READ(dst, key, vt):
 	payload = {'key': key}
 	headers = {'user-agent': APP_NAME, 'vt': vt}
-	r = requests.get("http://" + SERVER_IP + ":" + SERVER_PORT, params=payload, headers=headers)
+	r = requests.get("http://" + dst + ":" + SERVER_PORT, params=payload, headers=headers)
 	print r.text
 
-def WRITE(key, value, host, vt):
+def WRITE(dst, key, value, host, vt):
 	payload = {'key': key, 'value': value, 'host': host}
 	headers = {'user-agent': APP_NAME, 'vt': vt}
-	r = requests.post("http://" + SERVER_IP + ":" + SERVER_PORT, params=payload, headers=headers)
+	r = requests.post("http://" + dst + ":" + SERVER_PORT, params=payload, headers=headers)
 	print r.status_code
 
-def DELETE(key, vt):
+def DELETE(dst, key, vt):
 	payload = {'key': key}
 	headers = {'user-agent': APP_NAME, 'vt': vt}
-	r = requests.delete("http://" + SERVER_IP + ":" + SERVER_PORT, params=payload, headers=headers)
+	r = requests.delete("http://" + dst + ":" + SERVER_PORT, params=payload, headers=headers)
 	print r.status_code

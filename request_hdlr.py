@@ -14,6 +14,7 @@ import netifaces as ni
 import os
 import json
 
+SERVER_IP = '192.168.0.132'
 SERVER_PORT = 5434
 APP_NAME = 'distributed_computing/0.1'
 LOCALHOST = '127.0.0.1'
@@ -245,19 +246,19 @@ def process_request(req):
 		key = req[cmd_idx+1:]
 		with causal_timestamps_lock:
 			causal_timestamps[ip] += 1
-		request_calls.READ(key, json.dumps(causal_timestamps))
+		request_calls.READ(SERVER_IP, key, json.dumps(causal_timestamps))
 	elif (cmd == 'WRITE'):
 		key_idx = req.find(' ', cmd_idx+1)
 		key = req[cmd_idx+1:key_idx]
 		value = req[key_idx+1:]
 		with causal_timestamps_lock:
 			causal_timestamps[ip] += 1
-		request_calls.WRITE(key, value, ip, json.dumps(causal_timestamps))
+		request_calls.WRITE(SERVER_IP, key, value, ip, json.dumps(causal_timestamps))
 	elif (cmd == 'DELETE'):
 		key = req[cmd_idx+1:]
 		with causal_timestamps_lock:
 			causal_timestamps[ip] += 1
-		request_calls.DELETE(key, json.dumps(causal_timestamps))
+		request_calls.DELETE(SERVER_IP, key, json.dumps(causal_timestamps))
 	elif (req == 'vt'):
 		print causal_timestamps
 	elif (req == 'quit'):
