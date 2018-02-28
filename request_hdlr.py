@@ -300,6 +300,8 @@ def averaging_algo():
 	blank["blah"] = "blah"
 	blank = json.dumps(blank)
 
+	request_calls.DELETE(host, key, blank) # init key
+
 	request_calls.WRITE(host,key,str(val),host,blank,curr_iter)
 	curr_iter+=1
 
