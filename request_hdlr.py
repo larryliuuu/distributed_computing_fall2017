@@ -157,6 +157,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 		cur, conn = psql_interface.open_db()
 		query = query_t()
 		query.key = self.query_components["key"]
+		query.version = self.query_components["version"]
 		retval, res = psql_interface.GET(cur, query)
 
 		if retval:
@@ -190,6 +191,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 		query.key = self.query_components["key"]
 		query.value = self.query_components["value"]
 		query.modified_by = self.query_components["host"]
+		query.version = self.query_components["version"]
 
 		key_exists, res = psql_interface.GET(cur, query)
 		if key_exists:
