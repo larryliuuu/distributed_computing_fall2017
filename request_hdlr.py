@@ -319,6 +319,10 @@ def averaging_algo():
 		curr_iter+=1
 		print val
 	print "final value: " + str(val)
+	time.sleep(10)
+	request_calls.DELETE(host, key, blank)
+	while True:
+		x = 420
 
 
 
