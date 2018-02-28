@@ -308,7 +308,7 @@ def averaging_algo():
 		for n in neighbors:
 			status,text = request_calls.READ(n,key,blank,curr_iter)
 			while(status == "404"):
-				status,text = request_calls.READ(n,key,"",curr_iter)
+				status,text = request_calls.READ(n,key,blank,curr_iter)
 			n_value = float(text.split(":")[1])
 			#print n_value
 			val+=n_value * n_weight
