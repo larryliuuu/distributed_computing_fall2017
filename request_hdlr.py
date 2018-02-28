@@ -37,6 +37,12 @@ buf = []
 # if time passes and checktimestamps always fails, discard msg, print error msg etc.
 # this way, we simply buffer within the thread (= by the server class instance) instead of passing buffering bw threads
 # this doesnt work ^^^ :(
+def init_averaging(config_file):
+	f = open(config_file)
+	neighbors = []
+	for ip in f.readlines():
+		neighbors.append(ip.strip())
+	return neighbors 
 
 def init(timestamps, config_file):
 	f = open(config_file)
@@ -277,6 +283,42 @@ def process_request(req):
 	else:
 		print "Invalid Command. Type 'help' for more information or 'quit' to exit program."
 
+
+def averaging_algo():
+	neighbors = init_averaging(config_file)
+	size = len(neighbors)
+	curr_iter = 0
+	host = str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr'])
+	key = 'x'
+	#these two should be input through config file ideally as well. not worth bitching with rn ya feel
+	iter_cnt = 10
+	n_weight = 1. / size
+	val = 5
+
+	blank = dict()
+	blank["blah"] = "blah"
+	blank = json.dumps(blank)
+
+	request_calls.WRITE(host,key,str(val),host,blank,curr_iter)
+	curr_iter+=1
+
+	while(curr_iter < iter_cnt):
+		val = val * n_weight
+		for n in neighbors:
+			status,text = request_calls.READ(n,key,blank,curr_iter)
+			while(status == "404"):
+				status,text = request_calls.READ(n,key,"",curr_iter)
+			n_value = text.split(":")[1]
+			#print n_value
+			val+=n_value * n_weight
+		request_calls.WRITE(host,key,str(val),host,blank,curr_iter)
+		curr_iter+=1
+		print val
+	print "final value: " + str(val)
+
+
+
+
 def client(data):
 	global quit_flag
 	while True:
@@ -301,8 +343,9 @@ t_server = threading.Thread(target=server, kwargs={"data": "server data input pa
 t_server.daemon = True
 t_server.start()
 
-t_client = threading.Thread(target=client, kwargs={"data": "client data input param"})
-t_client.start()
+averaging_algo()
+#t_client = threading.Thread(target=client, kwargs={"data": "client data input param"})
+#t_client.start()
 
 
 '''
