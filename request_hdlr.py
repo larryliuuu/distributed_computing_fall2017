@@ -285,7 +285,7 @@ def process_request(req):
 
 
 def averaging_algo():
-	delay(3)
+	time.sleep(3)
 	neighbors = init_averaging(config_file)
 	size = len(neighbors)
 	curr_iter = 0
