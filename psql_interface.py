@@ -20,8 +20,8 @@ class query_t:
 
 def GET(cur, query):
 	res = query_t()
-	get_key = "SELECT * FROM keys WHERE key = %(key)s ORDER BY time_modified DESC"
-	get_param = {'key': query.key}
+	get_key = "SELECT * FROM keys WHERE key = %(key)s AND version = %(version)s ORDER BY time_modified DESC"
+	get_param = {'key': query.key, 'version': query.version}
 	try:
 		cur.execute(get_key, get_param)
 	except DatabaseError, exception:
@@ -42,8 +42,8 @@ def GET(cur, query):
 		return 1, res
 
 def INSERT(cur, query):
-	insert_key = "INSERT INTO keys(key, value, modified_by, time_modified, temp1, temp2, temp3) VALUES (%(key)s, %(value)s, %(modified_by)s, %(time_modified)s, %(temp1)s, %(temp2)s, %(temp3)s)"
-	insert_param = {'key': query.key, 'value': query.value, 'modified_by': query.modified_by, 'time_modified': datetime.datetime.now(), 'temp1': "", 'temp2': "", 'temp3': ""}
+	insert_key = "INSERT INTO keys(key, value, modified_by, time_modified, version, temp2, temp3) VALUES (%(key)s, %(value)s, %(modified_by)s, %(time_modified)s, %(version)s, %(temp2)s, %(temp3)s)"
+	insert_param = {'key': query.key, 'value': query.value, 'modified_by': query.modified_by, 'time_modified': datetime.datetime.now(), 'version': query.version, 'temp2': "", 'temp3': ""}
 	try:
 		cur.execute(insert_key, insert_param)
 	except DatabaseError, exception:
