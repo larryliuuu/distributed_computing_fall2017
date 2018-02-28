@@ -47,6 +47,8 @@ def init(timestamps, config_file):
 		#	timestamps[ip.strip()] = 6
 
 def check_timestamps(rcv_ip, rcv_timestamps):
+	return True
+
 	global causal_timestamps
 
 	if rcv_ip == LOCALHOST: # recieved messaged from self
