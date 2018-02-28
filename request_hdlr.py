@@ -169,12 +169,12 @@ class RequestHandler(BaseHTTPRequestHandler):
 		retval, res = psql_interface.GET(cur, query)
 
 		if retval:
-			print "GET " + query.key + " SUCCESS"
+			#print "GET " + query.key + " SUCCESS"
 			self.send_response(200)
 			self.end_headers()
 			self.wfile.write(query.key + ":" + str(res.value)) # return more informtion here
 		elif retval == 0: 
-			print "GET " + query.key + " NOT FOUND"
+			#print "GET " + query.key + " NOT FOUND"
 			self.send_response(404) # key not found
 		elif retval == -1:
 			print "GET " + query.key + " ERROR"
@@ -207,7 +207,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 		else:
 			retval = psql_interface.INSERT(cur, query)
 		if retval:
-			print "WRITE " + query.key + " " + query.value + " SUCCESS"
+			#print "WRITE " + query.key + " " + query.value + " SUCCESS"
 			self.send_response(200)
 		else:
 			print "WRITE " + query.key + " " + query.value + " ERROR"
@@ -232,7 +232,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 		retval = psql_interface.DELETE(cur, query)
 		if retval:
-			print "DELETE " + query.key + " SUCCESS"
+			#print "DELETE " + query.key + " SUCCESS"
 			self.send_response(200)
 		else:
 			print "DELETE " + query.key + " ERROR"
@@ -292,9 +292,9 @@ def averaging_algo():
 	host = str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr'])
 	key = 'x'
 	#these two should be input through config file ideally as well. not worth bitching with rn ya feel
-	iter_cnt = 10
+	iter_cnt = 20
 	n_weight = 1. / size
-	val = 5.
+	val = 99.
 
 	blank = dict()
 	blank["blah"] = "blah"
@@ -311,14 +311,12 @@ def averaging_algo():
 			status,text = request_calls.READ(n,key,blank,curr_iter-1)
 			while(status == 404):
 				status,text = request_calls.READ(n,key,blank,curr_iter-1)
-			print text
 			n_value = float(text.split(":")[1])
-			#print n_value
-			val+=n_value * n_weight
+			val += n_value * n_weight
 		request_calls.WRITE(host,key,str(val),host,blank,curr_iter)
-		curr_iter+=1
-		print val
-	print "final value: " + str(val)
+		curr_iter += 1
+		print "val: " + str(val)
+	print "Final average value: " + str(val)
 	time.sleep(10)
 	request_calls.DELETE(host, key, blank)
 	while True:
