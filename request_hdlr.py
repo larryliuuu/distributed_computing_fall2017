@@ -287,14 +287,17 @@ def process_request(req):
 def averaging_algo():
 	time.sleep(3)
 	neighbors = init_averaging(config_file)
-	size = len(neighbors)
+	num_neighbors = len(neighbors) - 1
 	curr_iter = 0
 	host = str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr'])
 	key = 'x'
-	#these two should be input through config file ideally as well. not worth bitching with rn ya feel
+	#add to config file?
+	total_nodes = 3
 	iter_cnt = 20
-	n_weight = 1. / size
-	val = 99.
+	
+	n_weight = 1. / total_nodes
+	host_weight = 1. - num_neighbors * n_weight
+	val = 79.
 
 	blank = dict()
 	blank["blah"] = "blah"
@@ -306,7 +309,7 @@ def averaging_algo():
 	curr_iter+=1
 
 	while(curr_iter < iter_cnt):
-		val = val * n_weight
+		val = val * host_weight
 		for n in neighbors:
 			if n == host:
 				continue
