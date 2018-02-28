@@ -293,7 +293,7 @@ def averaging_algo():
 	#these two should be input through config file ideally as well. not worth bitching with rn ya feel
 	iter_cnt = 10
 	n_weight = 1. / size
-	val = 5
+	val = 5.
 
 	blank = dict()
 	blank["blah"] = "blah"
@@ -308,7 +308,7 @@ def averaging_algo():
 			status,text = request_calls.READ(n,key,blank,curr_iter)
 			while(status == "404"):
 				status,text = request_calls.READ(n,key,"",curr_iter)
-			n_value = text.split(":")[1]
+			n_value = float(text.split(":")[1])
 			#print n_value
 			val+=n_value * n_weight
 		request_calls.WRITE(host,key,str(val),host,blank,curr_iter)
