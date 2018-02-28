@@ -306,9 +306,10 @@ def averaging_algo():
 	while(curr_iter < iter_cnt):
 		val = val * n_weight
 		for n in neighbors:
-			status,text = request_calls.READ(n,key,blank,curr_iter)
-			while(status == "404"):
-				status,text = request_calls.READ(n,key,blank,curr_iter)
+			status,text = request_calls.READ(n,key,blank,curr_iter-1)
+			while(status == 404):
+				status,text = request_calls.READ(n,key,blank,curr_iter-1)
+			print text
 			n_value = float(text.split(":")[1])
 			#print n_value
 			val+=n_value * n_weight
