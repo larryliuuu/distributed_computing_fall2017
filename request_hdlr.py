@@ -306,6 +306,8 @@ def averaging_algo():
 	while(curr_iter < iter_cnt):
 		val = val * n_weight
 		for n in neighbors:
+			if n == host:
+				continue
 			status,text = request_calls.READ(n,key,blank,curr_iter-1)
 			while(status == 404):
 				status,text = request_calls.READ(n,key,blank,curr_iter-1)
