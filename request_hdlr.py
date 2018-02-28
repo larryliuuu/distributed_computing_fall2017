@@ -317,13 +317,11 @@ def averaging_algo():
 			val += n_value * n_weight
 		request_calls.WRITE(host,key,str(val),host,blank,curr_iter)
 		curr_iter += 1
-		print "val: " + str(val)
+		print str(curr_iter) + ": " + str(val)
 	print "Final average value: " + str(val)
-	time.sleep(10)
+	time.sleep(3)
 	request_calls.DELETE(host, key, blank)
-	while True:
-		x = 420
-
+	os._exit(1)
 
 
 
