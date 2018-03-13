@@ -52,6 +52,44 @@ def init(timestamps, config_file):
 		#if ip.strip() == str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr']):
 		#	timestamps[ip.strip()] = 6
 
+def init_algo(config_file):
+	f = open(config_file)
+	neighbors = []
+	network = []
+	iterations = 0
+
+	state = None
+	for line in f.readlines():
+		if line.startswith("Neighbors"):
+			state = "neighbors"
+			continue
+		if line.startswith("Network"):
+			state = "network"
+			continue
+		if line.startswith("Iterations"):
+			state = "iteration"
+			continue
+
+
+		if not line.strip():
+			continue
+
+
+		if state == "neighbors":
+			neighbors.append(line.strip())
+			continue
+		if state == "network":
+			network.append(line.strip())
+			continue
+		if state == "iteration":
+			iterations = int(line.strip())
+			state = None
+
+	print neighbors
+	print network
+	print iterations
+
+
 def check_timestamps(rcv_ip, rcv_timestamps):
 	return True
 
@@ -293,11 +331,11 @@ def averaging_algo():
 	key = 'x'
 	#add to config file?
 	total_nodes = 3
-	iter_cnt = 20
+	iter_cnt = 40
 	
 	n_weight = 1. / total_nodes
 	host_weight = 1. - num_neighbors * n_weight
-	val = 79.
+	val = 88.
 
 	blank = dict()
 	blank["blah"] = "blah"
@@ -352,7 +390,7 @@ t_server = threading.Thread(target=server, kwargs={"data": "server data input pa
 t_server.daemon = True
 t_server.start()
 
-averaging_algo()
+init_algo(config_file)
 #t_client = threading.Thread(target=client, kwargs={"data": "client data input param"})
 #t_client.start()
 
