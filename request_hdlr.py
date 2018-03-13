@@ -14,6 +14,8 @@ import netifaces as ni
 import os
 import json
 
+import algo_calls
+
 SERVER_IP = '192.168.0.114'
 SERVER_PORT = 5434
 APP_NAME = 'distributed_computing/0.1'
@@ -29,20 +31,9 @@ causal_timestamps_lock = threading.Lock()
 epoch_times = dict()
 buf = []
 
-class config_t():
-	neighbors = []
-	network = []
-	iterations = 0
-	staleness = 0
-	blocking = True
-	variables = []
-	delay = 0 
-
-config = config_t()
-
+algo = algo_params()
 
 # psql database neededd when we thread requests out of server handler, (when we keep db connection open)
-
 
 # have a for loop with 1) delay 2) check_timestamps for some amount of time
 # if time passes and checktimestamps always fails, discard msg, print error msg etc.
@@ -64,7 +55,7 @@ def init(timestamps, config_file):
 		#	timestamps[ip.strip()] = 6
 
 def init_algo(config_file):
-	global config
+	global algo
 	f = open(config_file)
 	state = None
 
@@ -90,38 +81,44 @@ def init_algo(config_file):
 		if line.startswith("Delay"):
 			state = "delay"
 			continue
-
+		if line.startswith("Algorithm"):
+			state = "code"
+			continue
 
 		if not line.strip():
 			continue
 
 
 		if state == "neighbor":
-			config.neighbors.append(line.strip())
+			algo.config.neighbors.append(line.strip())
+			algo.config.network.append(line.strip())
 			continue
 		if state == "network":
-			config.network.append(line.strip())
+			algo.config.network.append(line.strip())
 			continue
 		if state == "iteration":
-			config.iterations = int(line.strip())
+			algo.config.iterations = int(line.strip())
 			state = None
 			continue
 		if state == "blocking":
-			config.blocking = bool(line.strip())
+			algo.config.blocking = bool(line.strip())
 			state = None
 			continue
 		if state == "staleness":
-			config.staleness = int(line.strip())
+			algo.config.staleness = int(line.strip())
 			state = None
 			continue
 		if state == "variable":
 			line = line.split("=")
-			config.variables.append((line[0].strip(), float(line[1].strip())))
+			algo.config.variables.append((line[0].strip(), float(line[1].strip())))
 			continue
 		if state == "delay":
-			config.delay = float(line.strip())
+			algo.config.delay = float(line.strip())
 			state = None
 			continue
+		if state == "code":
+			algo.config.code.append(line)
+
 '''
 	print config.neighbors
 	print config.network
