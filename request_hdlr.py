@@ -57,11 +57,15 @@ def init_algo(config_file):
 	neighbors = []
 	network = []
 	iterations = 0
+	staleness = 0
+	blocking = True
+	variables = []
+	delay = 0
 
 	state = None
 	for line in f.readlines():
 		if line.startswith("Neighbors"):
-			state = "neighbors"
+			state = "neighbor"
 			continue
 		if line.startswith("Network"):
 			state = "network"
@@ -69,13 +73,25 @@ def init_algo(config_file):
 		if line.startswith("Iterations"):
 			state = "iteration"
 			continue
+		if line.startswith("Blocking"):
+			state = "blocking"
+			continue
+		if line.startswith("Staleness"):
+			state = "staleness"
+			continue
+		if line.startswith("Variables"):
+			state = "variable"
+			continue
+		if line.startswith("Delay"):
+			state = "delay"
+			continue
 
 
 		if not line.strip():
 			continue
 
 
-		if state == "neighbors":
+		if state == "neighbor":
 			neighbors.append(line.strip())
 			continue
 		if state == "network":
@@ -84,10 +100,30 @@ def init_algo(config_file):
 		if state == "iteration":
 			iterations = int(line.strip())
 			state = None
+			continue
+		if state == "blocking":
+			blocking = bool(line.strip())
+			state = None
+			continue
+		if state == "staleness":
+			staleness = int(line.strip())
+			state = None
+			continue
+		if state == "variable":
+			variables.append(line.strip())
+			continue
+		if state == "delay":
+			delay = float(line.strip())
+			state = None
+			continue
+
+
 
 	print neighbors
 	print network
 	print iterations
+	print staleness
+	print blocking
 
 
 def check_timestamps(rcv_ip, rcv_timestamps):
