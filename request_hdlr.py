@@ -27,8 +27,19 @@ causal_timestamps = dict()
 causal_timestamps_lock = threading.Lock()
 
 epoch_times = dict()
-
 buf = []
+
+class config_t():
+	neighbors = []
+	network = []
+	iterations = 0
+	staleness = 0
+	blocking = True
+	variables = []
+	delay = 0 
+
+config = config_t()
+
 
 # psql database neededd when we thread requests out of server handler, (when we keep db connection open)
 
@@ -53,16 +64,10 @@ def init(timestamps, config_file):
 		#	timestamps[ip.strip()] = 6
 
 def init_algo(config_file):
+	global config
 	f = open(config_file)
-	neighbors = []
-	network = []
-	iterations = 0
-	staleness = 0
-	blocking = True
-	variables = []
-	delay = 0
-
 	state = None
+
 	for line in f.readlines():
 		if line.startswith("Neighbors"):
 			state = "neighbor"
@@ -92,39 +97,40 @@ def init_algo(config_file):
 
 
 		if state == "neighbor":
-			neighbors.append(line.strip())
+			config.neighbors.append(line.strip())
 			continue
 		if state == "network":
-			network.append(line.strip())
+			config.network.append(line.strip())
 			continue
 		if state == "iteration":
-			iterations = int(line.strip())
+			config.iterations = int(line.strip())
 			state = None
 			continue
 		if state == "blocking":
-			blocking = bool(line.strip())
+			config.blocking = bool(line.strip())
 			state = None
 			continue
 		if state == "staleness":
-			staleness = int(line.strip())
+			config.staleness = int(line.strip())
 			state = None
 			continue
 		if state == "variable":
-			variables.append(line.strip())
+			line = line.split("=")
+			config.variables.append((line[0].strip(), float(line[1].strip())))
 			continue
 		if state == "delay":
-			delay = float(line.strip())
+			config.delay = float(line.strip())
 			state = None
 			continue
-
-
-
-	print neighbors
-	print network
-	print iterations
-	print staleness
-	print blocking
-
+'''
+	print config.neighbors
+	print config.network
+	print config.iterations
+	print config.staleness
+	print config.blocking
+	print config.variables
+	print config.delay
+'''
 
 def check_timestamps(rcv_ip, rcv_timestamps):
 	return True
