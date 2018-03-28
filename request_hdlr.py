@@ -14,7 +14,7 @@ import netifaces as ni
 import os
 import json
 
-import algo_calls
+from algo_calls import *
 
 SERVER_IP = '192.168.0.114'
 SERVER_PORT = 5434
@@ -31,7 +31,6 @@ causal_timestamps_lock = threading.Lock()
 epoch_times = dict()
 buf = []
 
-algo = algo_params()
 
 # psql database neededd when we thread requests out of server handler, (when we keep db connection open)
 
@@ -54,80 +53,6 @@ def init(timestamps, config_file):
 		#if ip.strip() == str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr']):
 		#	timestamps[ip.strip()] = 6
 
-def init_algo(config_file):
-	global algo
-	f = open(config_file)
-	state = None
-
-	for line in f.readlines():
-		if line.startswith("Neighbors"):
-			state = "neighbor"
-			continue
-		if line.startswith("Network"):
-			state = "network"
-			continue
-		if line.startswith("Iterations"):
-			state = "iteration"
-			continue
-		if line.startswith("Blocking"):
-			state = "blocking"
-			continue
-		if line.startswith("Staleness"):
-			state = "staleness"
-			continue
-		if line.startswith("Variables"):
-			state = "variable"
-			continue
-		if line.startswith("Delay"):
-			state = "delay"
-			continue
-		if line.startswith("Algorithm"):
-			state = "code"
-			continue
-
-		if not line.strip():
-			continue
-
-
-		if state == "neighbor":
-			algo.config.neighbors.append(line.strip())
-			algo.config.network.append(line.strip())
-			continue
-		if state == "network":
-			algo.config.network.append(line.strip())
-			continue
-		if state == "iteration":
-			algo.config.iterations = int(line.strip())
-			state = None
-			continue
-		if state == "blocking":
-			algo.config.blocking = bool(line.strip())
-			state = None
-			continue
-		if state == "staleness":
-			algo.config.staleness = int(line.strip())
-			state = None
-			continue
-		if state == "variable":
-			line = line.split("=")
-			algo.config.variables.append((line[0].strip(), float(line[1].strip())))
-			continue
-		if state == "delay":
-			algo.config.delay = float(line.strip())
-			state = None
-			continue
-		if state == "code":
-			algo.config.code.append(line)
-
-'''
-	print config.neighbors
-	print config.network
-	print config.iterations
-	print config.staleness
-	print config.blocking
-	print config.variables
-	print config.delay
-'''
 
 def check_timestamps(rcv_ip, rcv_timestamps):
 	return True
@@ -362,46 +287,28 @@ def process_request(req):
 
 
 def averaging_algo():
-	time.sleep(3)
-	neighbors = init_averaging(config_file)
-	num_neighbors = len(neighbors) - 1
-	curr_iter = 0
-	host = str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr'])
-	key = 'x'
-	#add to config file?
-	total_nodes = 3
-	iter_cnt = 40
-	
-	n_weight = 1. / total_nodes
+	# begin program run
+	config = INIT(config_file)
+
+	# adjust weights
+	n_weight = 1. / config.network_size
 	host_weight = 1. - num_neighbors * n_weight
-	val = 88.
 
-	blank = dict()
-	blank["blah"] = "blah"
-	blank = json.dumps(blank)
-
-	request_calls.DELETE(host, key, blank) # init key
-
-	request_calls.WRITE(host,key,str(val),host,blank,curr_iter)
-	curr_iter+=1
-
-	while(curr_iter < iter_cnt):
+	for curr_iter in range(1, config.iterations):
+		# pre-round computations
 		val = val * host_weight
-		for n in neighbors:
-			if n == host:
-				continue
-			status,text = request_calls.READ(n,key,blank,curr_iter-1)
-			while(status == 404):
-				status,text = request_calls.READ(n,key,blank,curr_iter-1)
-			n_value = float(text.split(":")[1])
-			val += n_value * n_weight
-		request_calls.WRITE(host,key,str(val),host,blank,curr_iter)
-		curr_iter += 1
-		print str(curr_iter) + ": " + str(val)
+
+		# per-round computations
+		for n in config.neighbors:
+			res = READ(n, key, curr_iter-1)
+			val += res * n_weight
+
+		# post-round computations
+		WRITE(host,key,str(val),curr_iter)
+
+	# close program run
 	print "Final average value: " + str(val)
-	time.sleep(3)
-	request_calls.DELETE(host, key, blank)
-	os._exit(1)
+	CLEAN_KEYS(keys)
 
 
 
@@ -429,7 +336,6 @@ t_server = threading.Thread(target=server, kwargs={"data": "server data input pa
 t_server.daemon = True
 t_server.start()
 
-init_algo(config_file)
 #t_client = threading.Thread(target=client, kwargs={"data": "client data input param"})
 #t_client.start()
 

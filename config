@@ -1,39 +1,23 @@
 Neighbors:
+192.168.0.125
 192.168.0.114
-192.168.0.132
 
 Network:
-1.1.1.1
-2.2.2.2
+192.168.0.132
+192.168.0.125
+192.168.0.114
 
 Iterations:
-2
+40
 
 Staleness:
-2
+0
 
 Blocking:
-False
+True
 
 Variables:
-x
-y
+x=1
 
 Delay:
-0.1
-
-Algorithm:
-local(x, i) = neighbors(x, i - 1) * .5 + local(x, i)
-
-SET(local(x, i), neighbors(x, i - 1) * .5 + local(x, i))
-
-
-#init variables
-#start for loop to Iterations:
-
-local(var, iter, R_W_D)
-neighbors(var, iter, R_W_D)
-neighbor_size
-network_size
-greatest_neighbor(var, iter)
-smallest_neighbor(var, iter)
+0.5
