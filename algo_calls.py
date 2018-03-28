@@ -32,6 +32,7 @@ def INIT_KEYS(variables):
 		WRITE(key, str(value), 0, host)
 
 def CLEANUP():
+	time.sleep(5)
 	for key in config.variables[0]:
 		DELETE(host, key)
 
