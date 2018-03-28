@@ -1,5 +1,5 @@
 import netifaces as ni
-import request_calls
+import requests
 import time
 
 SERVER_PORT = '5434'
