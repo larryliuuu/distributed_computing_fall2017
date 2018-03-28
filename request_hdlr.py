@@ -336,6 +336,8 @@ t_server = threading.Thread(target=server, kwargs={"data": "server data input pa
 t_server.daemon = True
 t_server.start()
 
+averaging_algo()
+
 #t_client = threading.Thread(target=client, kwargs={"data": "client data input param"})
 #t_client.start()
 
