@@ -301,8 +301,6 @@ def averaging_algo():
 	val = config.variables[0][1]
 
 	for curr_iter in range(1, config.iterations):
-		print "iter: " + str(curr_iter)
-		print val
 		# pre-round computations
 		val = val * host_weight
 
@@ -312,12 +310,11 @@ def averaging_algo():
 			val += res * n_weight
 
 		# post-round computations
-		print val
 		WRITE(key, str(val), curr_iter)
 
 	# close program run
 	print "Final average value: " + str(val)
-	CLEAN_KEYS(keys)
+	CLEANUP()
 
 
 
