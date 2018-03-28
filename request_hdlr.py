@@ -139,9 +139,9 @@ class RequestHandler(BaseHTTPRequestHandler):
 				if 'vt' in self.headers:
 					self.rcv_vt = json.loads(self.headers['vt'])
 					self.rcv_ip = self.client_address[0]
-				else:
-					self.send_response(401) # vector timestamp not included
-					return False
+				#else:
+				#	self.send_response(401) # vector timestamp not included
+				#	return False
 				return True
 			else:
 				self.send_response(400) # user agent incorrect
@@ -297,6 +297,8 @@ def averaging_algo():
 	val = config.variables[0][1]
 
 	for curr_iter in range(1, config.iterations):
+		print "iter: " + str(curr_iter)
+		print val
 		# pre-round computations
 		val = val * host_weight
 
@@ -304,7 +306,7 @@ def averaging_algo():
 		for n in config.neighbors:
 			res = READ(key, curr_iter-1, n)
 			val += res * n_weight
-		
+
 		# post-round computations
 		print val
 		WRITE(key, str(val), curr_iter)

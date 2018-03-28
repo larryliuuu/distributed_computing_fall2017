@@ -21,7 +21,7 @@ host = str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr'])
 config = config_t()
 
 def INIT(config_file):
-	time.sleep(3)
+	time.sleep(2)
 	INIT_ALGO(config_file)
 	INIT_KEYS(config.variables)
 	return config
@@ -29,7 +29,8 @@ def INIT(config_file):
 def INIT_KEYS(variables):
 	for key, value in variables:
 		DELETE(host, key)
-		WRITE(key, str(value), 0, host)
+		print key + " " + str(value)
+		print WRITE(key, str(value), 0, host)
 
 def CLEAN_KEYS(keys):
 	for key in keys:
@@ -51,11 +52,13 @@ def READ(key, version, dst):
 		return 0.
 	else:
 		while(r.status_code != 200):
+			print r.status_code
 			time.sleep(config.delay)
 			r = requests.get("http://" + dst + ":" + SERVER_PORT, params=payload, headers=headers)
 	return float((r.text).split(":")[1])
 
 def WRITE(key, value, version, dst = host):
+	print key + " " + str(value) + " " + dst 
 	payload = {'key': key, 'value': value, 'host': host, 'version': version}
 	headers = {'user-agent': APP_NAME}
 	r = requests.post("http://" + dst + ":" + SERVER_PORT, params=payload, headers=headers)
