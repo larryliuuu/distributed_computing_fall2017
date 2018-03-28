@@ -55,7 +55,7 @@ def READ(dst, key, version):
 			r = requests.get("http://" + dst + ":" + SERVER_PORT, params=payload, headers=headers)
 	return float((r.text).split(":")[1])
 
-def WRITE(dst, key, value, version):
+def WRITE(dst = host, key, value, version):
 	payload = {'key': key, 'value': value, 'host': host, 'version': version}
 	headers = {'user-agent': APP_NAME}
 	r = requests.post("http://" + dst + ":" + SERVER_PORT, params=payload, headers=headers)

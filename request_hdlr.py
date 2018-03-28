@@ -292,7 +292,7 @@ def averaging_algo():
 
 	# adjust weights
 	n_weight = 1. / config.network_size
-	host_weight = 1. - num_neighbors * n_weight
+	host_weight = 1. - config.neighbor_size * n_weight
 
 	for curr_iter in range(1, config.iterations):
 		# pre-round computations
@@ -304,7 +304,7 @@ def averaging_algo():
 			val += res * n_weight
 
 		# post-round computations
-		WRITE(host,key,str(val),curr_iter)
+		WRITE(, key, str(val),curr_iter)
 
 	# close program run
 	print "Final average value: " + str(val)
