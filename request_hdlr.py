@@ -31,6 +31,7 @@ causal_timestamps_lock = threading.Lock()
 epoch_times = dict()
 buf = []
 
+timestamps_flag = False
 
 # psql database neededd when we thread requests out of server handler, (when we keep db connection open)
 
@@ -154,12 +155,13 @@ class RequestHandler(BaseHTTPRequestHandler):
 		if not self.verify():
 			return
 		log_flag = True
-		while not check_timestamps(self.rcv_ip, self.rcv_vt):
-			if log_flag:
-				print "buffer msg from: " + self.rcv_ip + " ",
-				print causal_timestamps
-				log_flag = False
-			time.sleep(.5)
+		if timestamps_flag:
+			while not check_timestamps(self.rcv_ip, self.rcv_vt):
+				if log_flag:
+					print "buffer msg from: " + self.rcv_ip + " ",
+					print causal_timestamps
+					log_flag = False
+				time.sleep(.5)
 
 		#if not check_timestamps:
 		#	buffer_msg(self.headers['vt'], self.client_address[0], 'GET', self.query_components['key'], '')
@@ -188,12 +190,13 @@ class RequestHandler(BaseHTTPRequestHandler):
 		if not self.verify():
 			return
 		log_flag = True
-		while not check_timestamps(self.rcv_ip, self.rcv_vt):
-			if log_flag:
-				print "buffer msg from: " + self.rcv_ip + " ",
-				print causal_timestamps
-				log_flag = False
-			time.sleep(.5)
+		if timestamps_flag:
+			while not check_timestamps(self.rcv_ip, self.rcv_vt) :
+				if log_flag:
+					print "buffer msg from: " + self.rcv_ip + " ",
+					print causal_timestamps
+					log_flag = False
+				time.sleep(.5)
 
 		cur, conn = psql_interface.open_db()
 
@@ -221,12 +224,13 @@ class RequestHandler(BaseHTTPRequestHandler):
 		if not self.verify():
 			return
 		log_flag = True
-		while not check_timestamps(self.rcv_ip, self.rcv_vt):
-			if log_flag:
-				print "buffer msg from: " + self.rcv_ip + " ",
-				print causal_timestamps
-				log_flag = False
-			time.sleep(.5)
+		if timestamps_flag:
+			while not check_timestamps(self.rcv_ip, self.rcv_vt):
+				if log_flag:
+					print "buffer msg from: " + self.rcv_ip + " ",
+					print causal_timestamps
+					log_flag = False
+				time.sleep(.5)
 
 		cur, conn = psql_interface.open_db()
 		query = query_t()
