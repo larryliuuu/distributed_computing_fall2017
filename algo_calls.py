@@ -29,7 +29,7 @@ def INIT(config_file):
 def INIT_KEYS(variables):
 	for key, value in variables:
 		DELETE(host, key)
-		WRITE(host, key, str(val), 0)
+		WRITE(host, key, str(value), 0)
 
 def CLEAN_KEYS(keys):
 	for key in keys:
