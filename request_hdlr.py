@@ -298,7 +298,7 @@ def averaging_algo():
 	n_weight = 1. / config.network_size
 	host_weight = 1. - config.neighbor_size * n_weight
 	key = config.variables[0][0]
-	val = config.variables[0][1]
+	val = config.variables[0][1] 
 
 	for curr_iter in range(1, config.iterations):
 		# pre-round computations
