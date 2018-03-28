@@ -35,7 +35,7 @@ def CLEAN_KEYS(keys):
 	for key in keys:
 		DELETE(host, key)
 
-def READ(dst, key, version):
+def READ(key, version, dst):
 	global config
 	payload = {'key': key, 'version': version}
 	headers = {'user-agent': APP_NAME}
@@ -55,7 +55,7 @@ def READ(dst, key, version):
 			r = requests.get("http://" + dst + ":" + SERVER_PORT, params=payload, headers=headers)
 	return float((r.text).split(":")[1])
 
-def WRITE(dst = host, key, value, version):
+def WRITE(key, value, version, dst = host):
 	payload = {'key': key, 'value': value, 'host': host, 'version': version}
 	headers = {'user-agent': APP_NAME}
 	r = requests.post("http://" + dst + ":" + SERVER_PORT, params=payload, headers=headers)

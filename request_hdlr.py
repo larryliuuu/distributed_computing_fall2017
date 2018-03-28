@@ -300,11 +300,11 @@ def averaging_algo():
 
 		# per-round computations
 		for n in config.neighbors:
-			res = READ(n, key, curr_iter-1)
+			res = READ(key, curr_iter-1, n)
 			val += res * n_weight
 
 		# post-round computations
-		WRITE(, key, str(val),curr_iter)
+		WRITE(key, str(val),curr_iter)
 
 	# close program run
 	print "Final average value: " + str(val)
