@@ -55,7 +55,7 @@ def READ(key, version, dst):
 			r = requests.get("http://" + dst + ":" + SERVER_PORT, params=payload, headers=headers)
 	return float((r.text).split(":")[1])
 
-def WRITE(key, value, version, dst = host):
+def WRITE(key, value, version, dst = str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr'])):
 	payload = {'key': key, 'value': value, 'host': host, 'version': version}
 	headers = {'user-agent': APP_NAME}
 	r = requests.post("http://" + dst + ":" + SERVER_PORT, params=payload, headers=headers)
