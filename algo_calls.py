@@ -29,11 +29,9 @@ def INIT(config_file):
 def INIT_KEYS(variables):
 	for key, value in variables:
 		DELETE(host, key)
-		print key + " " + str(value)
-		print WRITE(key, str(value), 0, host)
 
-def CLEAN_KEYS(keys):
-	for key in keys:
+def CLEANUP():
+	for key in config.variables[0]:
 		DELETE(host, key)
 
 def READ(key, version, dst):
@@ -52,13 +50,11 @@ def READ(key, version, dst):
 		return 0.
 	else:
 		while(r.status_code != 200):
-			print r.status_code
 			time.sleep(config.delay)
 			r = requests.get("http://" + dst + ":" + SERVER_PORT, params=payload, headers=headers)
 	return float((r.text).split(":")[1])
 
 def WRITE(key, value, version, dst = host):
-	print key + " " + str(value) + " " + dst 
 	payload = {'key': key, 'value': value, 'host': host, 'version': version}
 	headers = {'user-agent': APP_NAME}
 	r = requests.post("http://" + dst + ":" + SERVER_PORT, params=payload, headers=headers)
