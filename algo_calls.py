@@ -2,6 +2,9 @@ import netifaces as ni
 import request_calls
 import time
 
+SERVER_PORT = '5434'
+APP_NAME = 'distributed_computing/0.1'
+
 class config_t():
 	neighbors = []
 	network = []
