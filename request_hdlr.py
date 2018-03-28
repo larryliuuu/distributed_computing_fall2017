@@ -304,8 +304,9 @@ def averaging_algo():
 		for n in config.neighbors:
 			res = READ(key, curr_iter-1, n)
 			val += res * n_weight
-
+		
 		# post-round computations
+		print val
 		WRITE(key, str(val), curr_iter)
 
 	# close program run
