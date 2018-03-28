@@ -106,7 +106,6 @@ def INIT_ALGO(config_file):
 
 		if state == "neighbor":
 			config.neighbors.append(line.strip())
-			config.network.append(line.strip())
 			continue
 		if state == "network":
 			config.network.append(line.strip())
