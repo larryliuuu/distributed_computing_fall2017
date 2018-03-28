@@ -29,7 +29,7 @@ def INIT(config_file):
 def INIT_KEYS(variables):
 	for key, value in variables:
 		DELETE(host, key)
-		WRITE(host, key, str(value), 0)
+		WRITE(key, str(value), 0, host)
 
 def CLEAN_KEYS(keys):
 	for key in keys:
@@ -55,7 +55,7 @@ def READ(key, version, dst):
 			r = requests.get("http://" + dst + ":" + SERVER_PORT, params=payload, headers=headers)
 	return float((r.text).split(":")[1])
 
-def WRITE(key, value, version, dst = str(ni.ifaddresses('en0')[ni.AF_INET][0]['addr'])):
+def WRITE(key, value, version, dst = host):
 	payload = {'key': key, 'value': value, 'host': host, 'version': version}
 	headers = {'user-agent': APP_NAME}
 	r = requests.post("http://" + dst + ":" + SERVER_PORT, params=payload, headers=headers)
