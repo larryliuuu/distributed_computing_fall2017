@@ -13,6 +13,8 @@ import socket
 import netifaces as ni
 import os
 import json
+import importlib
+from inspect import getmembers
 
 from algo_calls import *
 
@@ -316,6 +318,38 @@ def averaging_algo():
 	print "Final average value: " + str(val)
 	CLEANUP()
 
+def run_algo():
+
+	config = INIT(config_file)
+
+	algorithm = open("algorithm.py", "w+")
+
+	algorithm.write("from algo_calls import *\n")
+	algorithm.write("def algo(config):\n")
+	for line in config.code["init"]:
+		algorithm.write("\t" + line)
+
+	algorithm.write("\tfor curr_iter in range(1, config.iterations):\n")
+	for line in config.code["pre"]:
+		algorithm.write("\t\t" + line)
+
+	algorithm.write("\t\tfor n in config.neighbors:\n")
+	for line in config.code["round"]:
+		algorithm.write("\t\t\t" + line)
+
+	for line in config.code["post"]:
+		algorithm.write("\t\t" + line)
+
+	algorithm.write("\n")
+	algorithm.close()
+
+	#code = importlib.import_module("algorithm")
+	code = __import__("algorithm")
+	code.algo(config)
+
+
+	CLEANUP()
+
 
 
 def client(data):
@@ -342,7 +376,7 @@ t_server = threading.Thread(target=server, kwargs={"data": "server data input pa
 t_server.daemon = True
 t_server.start()
 
-averaging_algo()
+run_algo()
 
 #t_client = threading.Thread(target=client, kwargs={"data": "client data input param"})
 #t_client.start()

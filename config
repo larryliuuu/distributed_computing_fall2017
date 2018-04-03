@@ -1,11 +1,8 @@
 Neighbors:
-192.168.0.125
-192.168.0.114
+
 
 Network:
-192.168.0.132
-192.168.0.125
-192.168.0.114
+8.8.8.8
 
 Iterations:
 40
@@ -17,7 +14,26 @@ Blocking:
 True
 
 Variables:
-x=1
+x=998
 
 Delay:
 0.5
+
+
+Initialize:
+n_weight = 1. / config.network_size
+host_weight = 1. - config.neighbor_size * n_weight
+key = config.variables[0][0]
+val = config.variables[0][1]
+
+Pre-Round:
+val = val * host_weight
+
+
+Round:
+res = READ(key, curr_iter-1, n)
+val += res * n_weight
+
+
+Post-Round:
+WRITE(key, str(val), curr_iter)

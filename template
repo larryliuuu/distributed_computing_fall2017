@@ -1,0 +1,15 @@
+def algo():
+
+	# initialize value
+	
+
+	for curr_iter in range(1, config.iterations):
+		# pre-round computations
+		
+
+		for n in config.neighbors:
+			# per-round computations
+
+
+		# post-round computations
+		
