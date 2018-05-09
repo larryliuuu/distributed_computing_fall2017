@@ -20,6 +20,7 @@ UIUC Distributed Computing Research Group - Fall 2017
 * requests
 * netifaces
 * psycopg2
+* pathlib
 
 
 ## Completed Tasks
@@ -27,3 +28,4 @@ UIUC Distributed Computing Research Group - Fall 2017
 2. Message passing with causal consistency
 3. Averaging Algorithm in Cassandra
 4. Execution of an algorithm from template/config utilizing neighboring nodes
+5. Execution of an algorithm from template on an ad-hoc network of raspberry pi nodes
