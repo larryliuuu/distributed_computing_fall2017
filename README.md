@@ -20,3 +20,10 @@ UIUC Distributed Computing Research Group - Fall 2017
 * requests
 * netifaces
 * psycopg2
+
+
+## Completed Tasks
+1. Postgres database READ/WRITE/DELETE API
+2. Message passing with causal consistency
+3. Averaging Algorithm in Cassandra
+4. Execution of an algorithm from template/config utilizing neighboring nodes
