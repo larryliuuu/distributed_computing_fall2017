@@ -1,6 +1,7 @@
 import netifaces as ni
 import requests
 import time
+from pathlib import Path
 
 SERVER_PORT = '5434'
 APP_NAME = 'distributed_computing/0.1'
@@ -73,6 +74,11 @@ def INIT_ALGO(config_file):
 	global config
 	f = open(config_file)
 	state = None
+	neighbor_location = Path("neighbors")
+	if neighbor_location.exists():
+		neighbor_file = open("neighbors")
+		for line in neighbor_file:
+			config.neighbors.append(line.strip())
 
 	for line in f.readlines():
 		if line.startswith("Neighbors"):
@@ -121,7 +127,8 @@ def INIT_ALGO(config_file):
 
 
 		if state == "neighbor":
-			config.neighbors.append(line.strip())
+			if not neighbor_location.exists():
+				config.neighbors.append(line.strip())
 			continue
 		if state == "network":
 			config.network.append(line.strip())
@@ -157,8 +164,6 @@ def INIT_ALGO(config_file):
 			config.code["round"].append(line)
 		if state == "post":
 			config.code["post"].append(line)
-
-
 
 
 	config.network_size = len(config.network)

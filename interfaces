@@ -1,0 +1,18 @@
+#Make this your /etc/network/interfaces file and restart your service to create the ad-hoc network for orchestrating algorithms on a raspberry pi
+
+# Include files from /etc/network/interfaces.d:
+source-directory /etc/network/interfaces.d
+
+
+auto lo
+iface lo inet loopback
+
+iface eth0 inet dhcp
+
+auto wlan0
+iface wlan0 inet static
+  address 192.168.0.1
+  netmask 255.255.255.0
+  wireless-channel 1
+  wireless-essid consensus_orchestrator
+  wireless-mode ad-hoc

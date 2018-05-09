@@ -18,6 +18,8 @@ from inspect import getmembers
 
 from algo_calls import *
 
+from subprocess import check_output
+
 SERVER_IP = '192.168.0.114'
 SERVER_PORT = 5434
 APP_NAME = 'distributed_computing/0.1'
@@ -343,7 +345,6 @@ def run_algo():
 	algorithm.write("\n")
 	algorithm.close()
 
-	#code = importlib.import_module("algorithm")
 	code = __import__("algorithm")
 	code.algo(config)
 
@@ -357,6 +358,30 @@ def client(data):
 	while True:
 		user_cmd = raw_input("")
 		process_request(user_cmd)
+
+def add_neighbors():
+	neighbors = {}
+	address = "192.168.0.255"
+
+	cmd = "ping " + address + " -t 3" + " -b"
+	out = check_output(cmd, shell=True)
+	for line in out.split("\n"):
+		if line.split(' ')[0] == '64':
+			IP = line.split(' ')[3][:-1]
+			if IP not in neighbors:
+				neighbors[IP] = 0
+
+	n_file = open("neighbors", "w+")
+	for neighbor in neighbors:
+		n_file.write(neighbor + "\n")
+
+def getopts(argv):
+    opts = {}  
+    while argv: 
+        if argv[0][0] == '-': 
+            opts[argv[0]] = 0 
+        argv = argv[1:] 
+    return opts
 
 '''-------------------------------------------------- MAIN --------------------------------------------------'''
 print "--------------------------------------------------"
@@ -376,20 +401,21 @@ t_server = threading.Thread(target=server, kwargs={"data": "server data input pa
 t_server.daemon = True
 t_server.start()
 
+try:
+    os.remove("neighbors")
+except OSError:
+    pass
+
+from sys import argv
+myargs = getopts(argv)
+if '-n' in myargs:  # Example usage.
+	add_neighbors()
+
 run_algo()
 
 #t_client = threading.Thread(target=client, kwargs={"data": "client data input param"})
 #t_client.start()
 
-
-'''
-
-memtable only keeps track of recently performed queries (key, value) pairs
-if key is not in memtable, do query directly from psql
-
-create a class that runs this. create an instance variable on the class of a memtable. make a thread that flushes the memtable
-bloom filter
-'''
 
 
 
